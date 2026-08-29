@@ -682,6 +682,13 @@ select.input option {
   margin-inline: auto;
 }
 
+#pantalla-miscartas::before,
+#pantalla-miscartas::after {
+  content: '';
+  margin: auto;
+  flex-shrink: 0;
+}
+
 .pantalla-titulo {
   text-align: center;
   font-size: 1.6rem;
@@ -779,6 +786,17 @@ select.input option {
 #pantalla-mischats {
   justify-content: flex-start;
   gap: 20px;
+}
+
+#pantalla-online::before,
+#pantalla-online::after,
+#pantalla-sala::before,
+#pantalla-sala::after,
+#pantalla-mischats::before,
+#pantalla-mischats::after {
+  content: '';
+  margin: auto;
+  flex-shrink: 0;
 }
 
 .online-hub {
