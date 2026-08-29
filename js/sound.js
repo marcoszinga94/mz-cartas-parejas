@@ -61,6 +61,10 @@ export class Sonidos {
         tono(ctx, { freq: 659.25, start: 0.12, dur: 0.15, type: 'sine', vol: 0.18 });
         tono(ctx, { freq: 783.99, start: 0.24, dur: 0.3, type: 'sine', vol: 0.2 });
         break;
+      case 'mensaje':
+        tono(ctx, { freq: 659.25, start: 0, dur: 0.09, type: 'sine', vol: 0.16 });
+        tono(ctx, { freq: 987.77, start: 0.08, dur: 0.16, type: 'sine', vol: 0.14 });
+        break;
     }
   }
 }

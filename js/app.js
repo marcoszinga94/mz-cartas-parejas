@@ -789,6 +789,7 @@ function init() {
 }
 
 if (typeof window !== 'undefined') {
+  window.sonidos = sonidos;
   window.mostrarPantalla = mostrarPantalla;
   window.iniciarPartida = iniciarPartida;
   window.resolverCarta = resolverCarta;

@@ -43,6 +43,7 @@ if (typeof window !== 'undefined') {
   let chatOrigen = 'online';
   let avisoTimer = null;
   let pollando = false;
+  let mensajesNoLeidos = 0;
 
   function lsGet(k) {
     try { return typeof localStorage !== 'undefined' ? localStorage.getItem(k) : null; } catch { return null; }
@@ -564,6 +565,8 @@ if (typeof window !== 'undefined') {
       return;
     }
     chatOrigen = pantallaActual === 'mischats' ? 'mischats' : (pantallaActual === 'sala' ? 'sala' : 'online-partida');
+    mensajesNoLeidos = 0;
+    actualizarBadgeChat();
     cargarChat();
     irA('chat');
     refrescarMensajes();
@@ -735,27 +738,45 @@ if (typeof window !== 'undefined') {
     }
   }
 
-  function solicitarPermisoNotificaciones() {
-    if (typeof Notification === 'undefined' || Notification.permission !== 'default') return;
-    Notification.requestPermission().catch(() => {});
+  function actualizarBadgeChat() {
+    const total = mensajesNoLeidos;
+    ['badge-online-chat', 'badge-chat-sala'].forEach((id) => {
+      const b = document.getElementById(id);
+      if (!b) return;
+      b.textContent = total > 99 ? '99+' : String(total);
+      b.classList.toggle('oculto', total === 0);
+    });
+  }
+
+  function pulsarBotonChat() {
+    const btn = document.getElementById('btn-online-chat');
+    if (!btn) return;
+    btn.classList.remove('pulso-chat');
+    void btn.offsetWidth;
+    btn.classList.add('pulso-chat');
+  }
+
+  let toastTimer = null;
+  function mostrarToast(autor, texto) {
+    const t = document.getElementById('toast-chat');
+    if (!t) return;
+    const cuerpo = texto && texto.startsWith('data:image/') ? '📷 Te envió una foto' : (texto || 'Nuevo mensaje');
+    t.textContent = `${autor} · ${cuerpo}`;
+    t.classList.remove('oculto');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.add('oculto'), 3500);
   }
 
   function notificarMensaje(autor, texto) {
-    if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
-    const cuerpo = texto && texto.startsWith('data:image/') ? '📷 Te envió una foto' : (texto || 'Nuevo mensaje');
-    navigator.serviceWorker?.ready.then((reg) => {
-      reg.showNotification(`${autor} · Cartas Parejas`, {
-        body: cuerpo,
-        icon: './icons/icon-192.png',
-        badge: './icons/icon-192.png',
-        tag: 'chat-cartas-parejas',
-      });
-    }).catch(() => {});
+    window.sonidos?.tocar('mensaje');
+    mensajesNoLeidos += 1;
+    actualizarBadgeChat();
+    pulsarBotonChat();
+    if (pantallaActual !== 'chat') mostrarToast(autor, texto);
   }
 
   function onlineIniciar() {
     dispositivoId();
-    solicitarPermisoNotificaciones();
     refrescarHub();
   }
 
