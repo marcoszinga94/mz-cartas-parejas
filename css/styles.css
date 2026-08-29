@@ -116,6 +116,17 @@ button {
   border: 1.5px solid var(--vino);
 }
 
+.boton-destacado {
+  background: rgba(200, 72, 110, 0.16);
+  color: #fff;
+  border: 1.5px solid var(--frambuesa);
+  box-shadow: 0 0 0 1px rgba(200, 72, 110, 0.35), 0 8px 22px rgba(200, 72, 110, 0.25);
+}
+
+.boton-destacado:active {
+  box-shadow: 0 0 0 1px rgba(200, 72, 110, 0.35), 0 4px 12px rgba(200, 72, 110, 0.2);
+}
+
 .boton-hecho {
   background: var(--grad-btn);
   color: #fff;
