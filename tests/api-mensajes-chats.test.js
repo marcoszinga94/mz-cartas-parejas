@@ -20,7 +20,7 @@ function fakeDb({ member = true, mensajes = null, actualizaciones = [] } = {}) {
     if (q.includes('INSERT INTO mensajes')) return [{ id: mensaje.id }];
     if (q.includes('FROM mensajes WHERE pareja_id')) return mensajes || [mensaje];
     if (q.includes('UPDATE mensajes SET contenido')) { actualizaciones.push(q); return []; }
-    if (q.includes('LEFT JOIN mensajes m')) return [{ pareja_id: 1, ultimo_mensaje: 'hola', actualizado_at: '2026-01-01T00:00:00Z' }];
+    if (q.includes('LEFT JOIN mensajes m')) return [{ pareja_id: 1, otro_nombre: 'Maru', ultimo_mensaje: 'hola', actualizado_at: '2026-01-01T00:00:00Z' }];
     if (q.includes('DELETE FROM parejas')) return [];
     throw new Error(`Query no contemplada: ${q.slice(0, 60)}`);
   };

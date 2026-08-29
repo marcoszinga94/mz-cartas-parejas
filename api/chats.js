@@ -6,7 +6,9 @@ export async function handle(req, res, db = getSql()) {
     const { dispositivo_id } = req.query || {};
     if (!dispositivo_id) return res.status(400).json({ error: 'Falta dispositivo_id' });
     try {
-      const chats = await db`SELECT DISTINCT ON (s.pareja_id) s.pareja_id, m.contenido AS ultimo_mensaje, m.creada_at AS actualizado_at
+      const chats = await db`SELECT DISTINCT ON (s.pareja_id) s.pareja_id,
+        CASE WHEN s.creador_id = ${dispositivo_id} THEN s.nombre2 ELSE s.nombre1 END AS otro_nombre,
+        m.contenido AS ultimo_mensaje, m.creada_at AS actualizado_at
         FROM sesiones s
         LEFT JOIN mensajes m ON m.pareja_id = s.pareja_id
         WHERE s.creador_id = ${dispositivo_id} OR s.jugador2_id = ${dispositivo_id}

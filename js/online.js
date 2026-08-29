@@ -673,7 +673,7 @@ if (typeof window !== 'undefined') {
       info.className = 'info';
       const titulo = document.createElement('span');
       titulo.className = 'chat-item-titulo';
-      titulo.textContent = `Pareja ${ch.pareja_id}`;
+      titulo.textContent = ch.otro_nombre || `Pareja ${ch.pareja_id}`;
       const ultimo = document.createElement('span');
       ultimo.className = 'ultimo';
       ultimo.textContent = ch.ultimo_mensaje ? `${formatearHora(ch.actualizado_at)} · ${ch.ultimo_mensaje}` : 'Sin mensajes';
