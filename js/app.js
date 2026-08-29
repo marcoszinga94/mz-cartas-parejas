@@ -1,5 +1,5 @@
 import { mergeCards, mezclarDeck, robarCarta } from './cards.js';
-import { Sonidos, puedeUsarAudio } from './sound.js';
+import { Sonidos } from './sound.js';
 import { formatTiempo, fraccionAnillo, esTension } from './timer.js';
 
 export function estadoInicial() {
@@ -82,6 +82,13 @@ async function cargarCartas() {
   ]);
   cartasBase = (base.status === 'fulfilled' && base.value.cartas) || [];
   cartasUsuario = (usuario.status === 'fulfilled' && usuario.value.cartas) || [];
+  if (estado.enPartida && mazo.length === 0 && cartasBase.length > 0) {
+    mazo = construirMazo();
+    if (mazo.length > 0) {
+      prevId = null;
+      repartirCarta();
+    }
+  }
 }
 
 function actualizarProgreso() {
@@ -312,16 +319,27 @@ function repartirCarta() {
   }
 }
 
-function iniciarPartida() {
+function construirMazo() {
+  const todas = mergeCards(cartasBase, [...cartasUsuario, ...(estado.misCartas || [])]);
+  let mazo = mezclarDeck(todas, estado.config.categorias);
+  if (mazo.length === 0 && cartasBase.length > 0) {
+    mazo = mezclarDeck(todas, estado.config.categorias);
+  }
+  return mazo;
+}
+
+function iniciarPartida(resetScores = true) {
   limpiarTransicion();
   enRondaExtra = false;
   const banner = document.getElementById('banner-extra');
   if (banner) banner.classList.add('oculto');
-  estado.puntos1 = 0;
-  estado.puntos2 = 0;
-  estado.turno = 1;
+  if (resetScores) {
+    estado.puntos1 = 0;
+    estado.puntos2 = 0;
+    estado.turno = 1;
+  }
   guardarEstado(estado);
-  mazo = mezclarDeck(mergeCards(cartasBase, [...cartasUsuario, ...(estado.misCartas || [])]), estado.config.categorias);
+  mazo = construirMazo();
   prevId = null;
   renderMarcador();
   mostrarPantalla('partida');
@@ -580,7 +598,11 @@ function importarJSON(input) {
 function init() {
   sincronizarSonido();
   cargarCartas();
-  mostrarPantalla('inicio');
+  if (estado.enPartida && (estado.config?.categorias?.length ?? 0) > 0) {
+    iniciarPartida(false);
+  } else {
+    mostrarPantalla('inicio');
+  }
 
   document.addEventListener('pointerdown', desbloquearAudio);
   document.addEventListener('touchstart', desbloquearAudio);

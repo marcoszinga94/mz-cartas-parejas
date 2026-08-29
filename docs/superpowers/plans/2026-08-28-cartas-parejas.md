@@ -196,6 +196,8 @@ export function robarCarta(deck, prevId) {
 
 Nota: al agotarse, se re-baraja el mazo completo excluyendo la carta anterior para evitar repetición inmediata.
 
+> **Nota de revisión final (supersede el snippet de arriba):** la implementación que se entregó usa un diseño de mazo rotatorio (`robarCarta(deck, prevId)` devuelve `{carta, deck}` moviendo la carta robada al final del mazo, re-mezclando solo si la carta de arriba repetiría la anterior). El mazo nunca se re-shufflea entre pasadas completas, nunca descarta cartas y nunca repite la carta inmediata; el snippet anterior (re-barajado al agotarse) quedó superado.
+
 - [ ] **Step 4: Ejecutar y verificar que pasa**
 
 Run: `node --test tests/cards.test.js`

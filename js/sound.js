@@ -42,7 +42,6 @@ export class Sonidos {
     if (!this.activo || typeof window === 'undefined') return;
     const ctx = getCtx();
     if (!ctx) return;
-    const t = ctx.currentTime;
     switch (nombre) {
       case 'punto':
         tono(ctx, { freq: 523.25, start: 0, dur: 0.12, type: 'sine', vol: 0.2 });
