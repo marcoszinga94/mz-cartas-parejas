@@ -118,6 +118,17 @@ if (typeof window !== 'undefined') {
     return `Jugador ${pos}`;
   }
 
+  function nombreOnline() {
+    const input = document.getElementById('input-nombre-online');
+    const escrito = input?.value?.trim();
+    if (escrito) {
+      lsSet('cp.onlineNombre', escrito);
+      return escrito;
+    }
+    const guardado = lsGet('cp.onlineNombre');
+    return guardado || nombreLocal(1);
+  }
+
   function categoriasElegidas() {
     try {
       const est = JSON.parse(lsGet('cp.estado') || '{}');
@@ -308,7 +319,7 @@ if (typeof window !== 'undefined') {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          pareja_id: pid, dispositivo_id: did, nombre: nombreLocal(1), categorias: categoriasElegidas(),
+          pareja_id: pid, dispositivo_id: did, nombre: nombreOnline(), categorias: categoriasElegidas(),
         }),
       });
       const d = await r.json();
@@ -327,7 +338,7 @@ if (typeof window !== 'undefined') {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            pareja_id: pid, dispositivo_id: did, nombre: nombreLocal(1), categorias: categoriasElegidas(),
+            pareja_id: pid, dispositivo_id: did, nombre: nombreOnline(), categorias: categoriasElegidas(),
           }),
         });
         const d2 = await r2.json();
@@ -376,7 +387,7 @@ if (typeof window !== 'undefined') {
       const r = await fetch('/api/sesion-join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ codigo, dispositivo_id: dispositivoId(), nombre: nombreLocal(2) }),
+        body: JSON.stringify({ codigo, dispositivo_id: dispositivoId(), nombre: nombreOnline() }),
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || 'No se pudo unir');
@@ -777,6 +788,8 @@ if (typeof window !== 'undefined') {
 
   function onlineIniciar() {
     dispositivoId();
+    const input = document.getElementById('input-nombre-online');
+    if (input) input.value = lsGet('cp.onlineNombre') || nombreLocal(1);
     refrescarHub();
   }
 
@@ -802,6 +815,11 @@ if (typeof window !== 'undefined') {
 
   escuchar('btn-crear-sala', crearSala);
   escuchar('btn-unirse-sala', unirseSala);
+  const inputNombre = document.getElementById('input-nombre-online');
+  if (inputNombre) inputNombre.addEventListener('input', () => {
+    const v = inputNombre.value.trim();
+    if (v) lsSet('cp.onlineNombre', v);
+  });
   const inputCodigo = document.getElementById('input-codigo');
   if (inputCodigo) inputCodigo.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') unirseSala();
