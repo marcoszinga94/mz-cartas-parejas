@@ -818,6 +818,17 @@ select.input option {
   max-width: 360px;
 }
 
+.online-categorias {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.online-categorias .chips {
+  justify-content: center;
+}
+
 .online-join {
   display: flex;
   gap: 8px;

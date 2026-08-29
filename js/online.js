@@ -130,6 +130,9 @@ if (typeof window !== 'undefined') {
   }
 
   function categoriasElegidas() {
+    const activas = [...document.querySelectorAll('#chips-online .chip.chip-activo')]
+      .map(ch => ch.dataset.categoria);
+    if (activas.length > 0) return activas;
     try {
       const est = JSON.parse(lsGet('cp.estado') || '{}');
       const cats = est?.config?.categorias;
@@ -790,6 +793,15 @@ if (typeof window !== 'undefined') {
     dispositivoId();
     const input = document.getElementById('input-nombre-online');
     if (input) input.value = lsGet('cp.onlineNombre') || nombreLocal(1);
+    let iniciales = CATEGORIAS_DEFAULT;
+    try {
+      const est = JSON.parse(lsGet('cp.estado') || '{}');
+      const cats = est?.config?.categorias;
+      if (Array.isArray(cats) && cats.length > 0) iniciales = cats;
+    } catch {}
+    document.querySelectorAll('#chips-online .chip').forEach(ch => {
+      ch.classList.toggle('chip-activo', iniciales.includes(ch.dataset.categoria));
+    });
     refrescarHub();
   }
 
@@ -820,6 +832,7 @@ if (typeof window !== 'undefined') {
     const v = inputNombre.value.trim();
     if (v) lsSet('cp.onlineNombre', v);
   });
+  document.querySelectorAll('#chips-online .chip').forEach(ch => ch.addEventListener('click', () => ch.classList.toggle('chip-activo')));
   const inputCodigo = document.getElementById('input-codigo');
   if (inputCodigo) inputCodigo.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') unirseSala();
