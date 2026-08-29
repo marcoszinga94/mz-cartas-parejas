@@ -185,6 +185,7 @@ function seleccionarTiempo(chip) {
 let mazo = [];
 let prevId = null;
 let timerId = null;
+let transicionTimer = null;
 let resolviendo = false;
 
 const CIRCUNFERENCIA_ANILLO = 100.53;
@@ -278,26 +279,34 @@ function marcarPop(id) {
   el.classList.add('pop');
 }
 
+function limpiarTransicion() {
+  clearTimeout(transicionTimer);
+  transicionTimer = null;
+  resolviendo = false;
+}
+
 function repartirCarta() {
-  if (mazo.length > 0) {
+  const hayCarta = mazo.length > 0;
+  const cat = document.getElementById('carta-categoria');
+  const txt = document.getElementById('carta-texto');
+  if (hayCarta) {
     const { carta, deck: nuevoDeck } = robarCarta(mazo, prevId);
     prevId = carta.id;
     mazo = nuevoDeck;
-    const cat = document.getElementById('carta-categoria');
-    const txt = document.getElementById('carta-texto');
     if (cat) cat.textContent = carta.categoria;
     if (txt) txt.textContent = carta.texto;
   } else {
-    const cat = document.getElementById('carta-categoria');
-    const txt = document.getElementById('carta-texto');
     if (cat) cat.textContent = '—';
     if (txt) txt.textContent = 'Cargando cartas…';
   }
-  reiniciarAnimacionCarta();
-  iniciarCronometro();
+  if (hayCarta) {
+    reiniciarAnimacionCarta();
+    iniciarCronometro();
+  }
 }
 
 function iniciarPartida() {
+  limpiarTransicion();
   estado.puntos1 = 0;
   estado.puntos2 = 0;
   estado.turno = 1;
@@ -326,13 +335,15 @@ function resolverCarta(hecho) {
   estado.turno = estado.turno === 1 ? 2 : 1;
   renderMarcador();
   guardarEstado(estado);
-  setTimeout(() => {
+  transicionTimer = setTimeout(() => {
+    transicionTimer = null;
     resolviendo = false;
     repartirCarta();
   }, 520);
 }
 
 function finalizarPartida() {
+  limpiarTransicion();
   clearInterval(timerId);
   timerId = null;
   estado.enPartida = false;
