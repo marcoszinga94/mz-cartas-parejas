@@ -763,11 +763,17 @@ if (typeof window !== 'undefined') {
   if (inputChat) inputChat.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') enviarTexto();
   });
-  const inputFoto = document.getElementById('input-chat-foto');
-  if (inputFoto) inputFoto.addEventListener('change', () => {
-    const f = inputFoto.files?.[0];
+  const inputCamara = document.getElementById('input-chat-camara');
+  if (inputCamara) inputCamara.addEventListener('change', () => {
+    const f = inputCamara.files?.[0];
     if (f) enviarFoto(f);
-    inputFoto.value = '';
+    inputCamara.value = '';
+  });
+  const inputGaleria = document.getElementById('input-chat-galeria');
+  if (inputGaleria) inputGaleria.addEventListener('change', () => {
+    const f = inputGaleria.files?.[0];
+    if (f) enviarFoto(f);
+    inputGaleria.value = '';
   });
 
   escuchar('btn-volver-online-chats', () => {

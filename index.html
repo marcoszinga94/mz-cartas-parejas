@@ -230,9 +230,13 @@
       </div>
       <div id="chat-mensajes" class="chat-mensajes"></div>
       <div class="chat-input">
-        <label class="chat-foto" aria-label="Enviar foto">
-          📷
-          <input id="input-chat-foto" type="file" accept="image/*" hidden>
+        <label class="chat-foto" aria-label="Tomar foto con la cámara">
+          📸
+          <input id="input-chat-camara" type="file" accept="image/*" capture="environment" hidden>
+        </label>
+        <label class="chat-foto" aria-label="Elegir foto de la galería">
+          🖼️
+          <input id="input-chat-galeria" type="file" accept="image/*" hidden>
         </label>
         <input id="input-chat-texto" class="input" type="text" placeholder="Escribí un mensaje..." maxlength="500">
         <button id="btn-chat-enviar" class="boton boton-primario" type="button">Enviar</button>
