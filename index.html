@@ -256,6 +256,70 @@
 
   </main>
 
+  <div id="modal-legal" class="modal-legal oculto" role="dialog" aria-modal="true" aria-labelledby="modal-legal-titulo">
+    <div class="modal-legal-contenido">
+      <h2 id="modal-legal-titulo" class="pantalla-titulo">Bienvenida ♥</h2>
+      <p class="modal-legal-texto">Antes de empezar, leé y aceptá nuestros términos y condiciones y la política de privacidad de tus datos.</p>
+      <div class="modal-legal-enlaces">
+        <button id="btn-ver-terminos" class="boton boton-secundario" type="button">Términos y condiciones</button>
+        <button id="btn-ver-privacidad" class="boton boton-secundario" type="button">Privacidad de los datos</button>
+      </div>
+      <label class="modal-legal-check">
+        <input id="chk-no-mostrar" type="checkbox">
+        <span>No volver a mostrar</span>
+      </label>
+      <button id="btn-aceptar-legal" class="boton boton-primario" type="button">Aceptar</button>
+    </div>
+  </div>
+
+  <section id="pantalla-terminos" class="pantalla oculto">
+    <div class="pagina-legal">
+      <h1 class="pantalla-titulo">Términos y condiciones</h1>
+      <p class="pagina-legal-fecha">Última actualización: 2026-08-28</p>
+      <div class="pagina-legal-cuerpo">
+        <h3>1. Aceptación</h3>
+        <p>Al usar Cartas Parejas aceptás estos términos. Si no estás de acuerdo, no uses la aplicación.</p>
+        <h3>2. Uso del servicio</h3>
+        <p>La aplicación es para mayores de 18 años y está pensada para parejas que consienten su uso en conjunto. El contenido de las cartas (incluidas las categorías Picante, Hot y Sexting) es explícito; su uso es bajo tu responsabilidad.</p>
+        <h3>3. Modo online</h3>
+        <p>El modo online conecta dos dispositivos mediante un código. Solo compartas el código con tu pareja: quien tenga el código puede unirse a la sesión y leer la conversación.</p>
+        <h3>4. Contenido de las cartas</h3>
+        <p>Podés crear y editar cartas propias. Sos responsable del contenido que agregás y compartís.</p>
+        <h3>5. Conducta</h3>
+        <p>No usás la aplicación para acosar, difamar ni compartir material ilegal. Las fotos que enviaste deben ser con consentimiento de quien aparece.</p>
+        <h3>6. Disponibilidad</h3>
+        <p>La aplicación se ofrece "tal cual" y puede sufrir interrupciones o cambios sin previo aviso.</p>
+        <h3>7. Modificaciones</h3>
+        <p>Podemos actualizar estos términos. Si cambiás la versión instalada, te mostraremos los términos nuevos.</p>
+      </div>
+      <button id="btn-volver-terminos" class="boton boton-secundario" type="button">Volver</button>
+    </div>
+  </section>
+
+  <section id="pantalla-privacidad" class="pantalla oculto">
+    <div class="pagina-legal">
+      <h1 class="pantalla-titulo">Privacidad de los datos</h1>
+      <p class="pagina-legal-fecha">Última actualización: 2026-08-28</p>
+      <div class="pagina-legal-cuerpo">
+        <h3>1. Qué datos guardamos</h3>
+        <p>Los datos de tu partida local (nombres, configuración, cartas propias, preferencia de sonido) se guardan únicamente en tu dispositivo (almacenamiento local del navegador) y no se envían a ningún servidor.</p>
+        <h3>2. Modo online y Neon</h3>
+        <p>Al usar el modo online, la conversación y el estado de la partida se guardan en una base de datos en la nube (Neon) para permitir la sincronización entre tu teléfono y el de tu pareja. La conversación persiste hasta que uno de los dos la borre manualmente desde "Mis chats".</p>
+        <h3>3. Fotos</h3>
+        <p>Las fotos se envían solo en vivo durante la sesión y se guardan en el dispositivo de quien las recibe. Se eliminan del servidor una vez entregadas. No se almacenan permanentemente en la nube.</p>
+        <h3>4. Identificación</h3>
+        <p>La aplicación genera un identificador anónimo de dispositivo. No pedimos nombre de usuario, correo ni datos personales.</p>
+        <h3>5. Seguridad</h3>
+        <p>La conexión con el servidor es cifrada (HTTPS). El código de la sala es la única protección de acceso a una conversación: no lo compartas con nadie más.</p>
+        <h3>6. Borrado de datos</h3>
+        <p>Podés borrar una conversación completa en cualquier momento desde "Mis chats". Los datos locales se borran al borrar los datos del sitio en tu navegador.</p>
+        <h3>7. Contacto</h3>
+        <p>Para consultas sobre privacidad, escribinos desde el hosting donde se aloja la aplicación.</p>
+      </div>
+      <button id="btn-volver-privacidad" class="boton boton-secundario" type="button">Volver</button>
+    </div>
+  </section>
+
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

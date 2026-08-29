@@ -673,6 +673,45 @@ function init() {
     mostrarPantalla('inicio');
   }
 
+  const legalAceptado = typeof localStorage !== 'undefined' && localStorage.getItem('cp.aceptoLegal') === '1';
+  const modalLegal = document.getElementById('modal-legal');
+  const ocultarModal = () => { if (modalLegal) modalLegal.classList.add('oculto'); };
+  const mostrarModal = () => {
+    if (modalLegal && typeof localStorage !== 'undefined' && localStorage.getItem('cp.aceptoLegal') !== '1') {
+      modalLegal.classList.remove('oculto');
+    }
+  };
+  if (!legalAceptado && modalLegal) {
+    modalLegal.classList.remove('oculto');
+  }
+
+  const btnVerTerminos = document.getElementById('btn-ver-terminos');
+  if (btnVerTerminos) btnVerTerminos.addEventListener('click', () => {
+    ocultarModal();
+    mostrarPantalla('terminos');
+  });
+  const btnVerPrivacidad = document.getElementById('btn-ver-privacidad');
+  if (btnVerPrivacidad) btnVerPrivacidad.addEventListener('click', () => {
+    ocultarModal();
+    mostrarPantalla('privacidad');
+  });
+  const btnAceptarLegal = document.getElementById('btn-aceptar-legal');
+  if (btnAceptarLegal) btnAceptarLegal.addEventListener('click', () => {
+    const chk = document.getElementById('chk-no-mostrar');
+    if (typeof localStorage !== 'undefined' && chk && chk.checked) localStorage.setItem('cp.aceptoLegal', '1');
+    ocultarModal();
+  });
+  const btnVolverTerminos = document.getElementById('btn-volver-terminos');
+  if (btnVolverTerminos) btnVolverTerminos.addEventListener('click', () => {
+    mostrarPantalla('inicio');
+    mostrarModal();
+  });
+  const btnVolverPrivacidad = document.getElementById('btn-volver-privacidad');
+  if (btnVolverPrivacidad) btnVolverPrivacidad.addEventListener('click', () => {
+    mostrarPantalla('inicio');
+    mostrarModal();
+  });
+
   document.addEventListener('pointerdown', desbloquearAudio);
   document.addEventListener('touchstart', desbloquearAudio);
 

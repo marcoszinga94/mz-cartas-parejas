@@ -1210,6 +1210,113 @@ select.input option {
   }
 }
 
+.modal-legal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(10, 6, 10, 0.88);
+  backdrop-filter: blur(4px);
+  animation: entrarPaso 0.2s ease both;
+}
+
+.modal-legal-contenido {
+  width: 100%;
+  max-width: 380px;
+  max-height: 82dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--vino);
+  border-radius: 20px;
+  padding: 26px 22px;
+  text-align: center;
+}
+
+.modal-legal-texto {
+  color: var(--texto);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.modal-legal-enlaces {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-legal-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--rosa);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.modal-legal-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--frambuesa);
+}
+
+.pagina-legal {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  max-width: 420px;
+  padding: 8px 0 24px;
+}
+
+.pagina-legal-fecha {
+  color: var(--inactivo);
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: -12px;
+}
+
+.pagina-legal-cuerpo {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pagina-legal-cuerpo h3 {
+  color: var(--rosa);
+  font-size: 1.05rem;
+  margin: 6px 0 0;
+}
+
+.pagina-legal-cuerpo p {
+  color: var(--texto);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+#pantalla-terminos,
+#pantalla-privacidad {
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+
+#pantalla-terminos::before,
+#pantalla-terminos::after,
+#pantalla-privacidad::before,
+#pantalla-privacidad::after {
+  content: '';
+  margin: auto;
+  flex-shrink: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
