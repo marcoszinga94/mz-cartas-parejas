@@ -110,7 +110,7 @@ function irAPaso(n) {
   const btnSig = document.getElementById('btn-paso-siguiente');
   if (btnSig) btnSig.textContent = n === 3 ? 'Comenzar' : 'Siguiente';
   const btnAtras = document.getElementById('btn-paso-atras');
-  if (btnAtras) btnAtras.disabled = n === 1;
+  if (btnAtras) btnAtras.textContent = n === 1 ? 'Volver' : 'Atrás';
 }
 
 function avisarCategorias() {
@@ -159,7 +159,11 @@ function siguientePaso() {
 }
 
 function pasoAtras() {
-  if (pasoActual > 1) irAPaso(pasoActual - 1);
+  if (pasoActual === 1) {
+    mostrarPantalla('inicio');
+    return;
+  }
+  irAPaso(pasoActual - 1);
 }
 
 function comenzarPartida() {
