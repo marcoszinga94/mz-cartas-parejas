@@ -187,6 +187,9 @@ let prevId = null;
 let timerId = null;
 let transicionTimer = null;
 let resolviendo = false;
+let enRondaExtra = false;
+
+const COLORES_CONFETI = ['var(--frambuesa)', 'var(--rosa)', 'var(--lavanda)', 'var(--dorado)'];
 
 const CIRCUNFERENCIA_ANILLO = 100.53;
 
@@ -307,6 +310,7 @@ function repartirCarta() {
 
 function iniciarPartida() {
   limpiarTransicion();
+  enRondaExtra = false;
   estado.puntos1 = 0;
   estado.puntos2 = 0;
   estado.turno = 1;
@@ -330,6 +334,10 @@ function resolverCarta(hecho) {
     flotarCorazon(estado.turno);
     marcarPop(estado.turno === 1 ? 'marcador-p1' : 'marcador-p2');
   }
+  if (enRondaExtra && hecho) {
+    finalizarPartida();
+    return;
+  }
   sonidos.tocar('flip');
   animarSalida();
   estado.turno = estado.turno === 1 ? 2 : 1;
@@ -349,6 +357,61 @@ function finalizarPartida() {
   estado.enPartida = false;
   guardarEstado(estado);
   if (typeof window.mostrarFin === 'function') window.mostrarFin();
+}
+
+function lanzarConfeti() {
+  const n = 40 + Math.floor(Math.random() * 21);
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement('span');
+    p.className = 'confeti';
+    p.style.left = `${Math.random() * 100}%`;
+    p.style.backgroundColor = COLORES_CONFETI[Math.floor(Math.random() * COLORES_CONFETI.length)];
+    p.style.animationDuration = `${1.6 + Math.random() * 1.8}s`;
+    p.style.animationDelay = `${Math.random() * 0.5}s`;
+    document.body.appendChild(p);
+    p.addEventListener('animationend', () => p.remove());
+  }
+}
+
+function mostrarFin() {
+  mostrarPantalla('fin');
+  const spans = document.querySelectorAll('#fin-marcador span');
+  if (spans[0]) spans[0].textContent = `${estado.p1} ${estado.puntos1}`;
+  if (spans[1]) spans[1].textContent = `${estado.p2} ${estado.puntos2}`;
+  const titulo = document.getElementById('fin-titulo');
+  const btnRonda = document.getElementById('btn-ronda-extra');
+  if (estado.puntos1 === estado.puntos2) {
+    if (titulo) titulo.textContent = '⚡ ¡Empate!';
+    if (btnRonda) btnRonda.classList.remove('oculto');
+  } else {
+    const ganador = estado.puntos1 > estado.puntos2 ? estado.p1 : estado.p2;
+    if (titulo) titulo.textContent = `👑 ¡${ganador} gana!`;
+    if (btnRonda) btnRonda.classList.add('oculto');
+    lanzarConfeti();
+    sonidos.tocar('fin');
+  }
+}
+
+function rondaExtra() {
+  estado.enPartida = true;
+  const banner = document.getElementById('banner-extra');
+  if (banner) banner.classList.remove('oculto');
+  iniciarPartida();
+  enRondaExtra = true;
+}
+
+function reiniciar() {
+  enRondaExtra = false;
+  const banner = document.getElementById('banner-extra');
+  if (banner) banner.classList.add('oculto');
+  estado.enPartida = true;
+  iniciarPartida();
+}
+
+function volverConfig() {
+  poblarAsistente();
+  irAPaso(1);
+  mostrarPantalla('asistente');
 }
 
 function init() {
@@ -391,6 +454,15 @@ function init() {
 
   const btnFinalizar = document.getElementById('btn-finalizar');
   if (btnFinalizar) btnFinalizar.addEventListener('click', finalizarPartida);
+
+  const btnReiniciar = document.getElementById('btn-reiniciar');
+  if (btnReiniciar) btnReiniciar.addEventListener('click', reiniciar);
+
+  const btnVolverConfig = document.getElementById('btn-volver-config');
+  if (btnVolverConfig) btnVolverConfig.addEventListener('click', volverConfig);
+
+  const btnRondaExtra = document.getElementById('btn-ronda-extra');
+  if (btnRondaExtra) btnRondaExtra.addEventListener('click', rondaExtra);
 }
 
 if (typeof window !== 'undefined') {
@@ -398,6 +470,10 @@ if (typeof window !== 'undefined') {
   window.iniciarPartida = iniciarPartida;
   window.resolverCarta = resolverCarta;
   window.finalizarPartida = finalizarPartida;
+  window.mostrarFin = mostrarFin;
+  window.rondaExtra = rondaExtra;
+  window.reiniciar = reiniciar;
+  window.volverConfig = volverConfig;
 }
 
 if (typeof document !== 'undefined') {

@@ -461,6 +461,7 @@ select.input option {
   color: #fff;
   border-radius: 999px;
   padding: 10px 20px;
+  width: fit-content;
   font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.04em;
