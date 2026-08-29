@@ -664,3 +664,9 @@ if (typeof window !== 'undefined') {
 if (typeof document !== 'undefined') {
   init();
 }
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
