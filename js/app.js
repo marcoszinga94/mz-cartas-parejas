@@ -9,6 +9,7 @@ export function estadoInicial() {
     turno: 1,
     config: { categorias: [], tiempo: 45, rondas: 0 },
     enPartida: false,
+    misCartas: [],
   };
 }
 
@@ -38,6 +39,9 @@ let cartasBase = [];
 let cartasUsuario = [];
 let pasoActual = 1;
 let audioDesbloqueado = false;
+
+const CATEGORIAS = ['Preguntas', 'Retos', 'Picante', 'Romantico', 'Loco'];
+let editandoId = null;
 
 function mostrarPantalla(nombre) {
   document.querySelectorAll('.pantalla').forEach(el => el.classList.add('oculto'));
@@ -315,7 +319,7 @@ function iniciarPartida() {
   estado.puntos2 = 0;
   estado.turno = 1;
   guardarEstado(estado);
-  mazo = mezclarDeck(mergeCards(cartasBase, cartasUsuario), estado.config.categorias);
+  mazo = mezclarDeck(mergeCards(cartasBase, [...cartasUsuario, ...(estado.misCartas || [])]), estado.config.categorias);
   prevId = null;
   renderMarcador();
   mostrarPantalla('partida');
@@ -414,6 +418,165 @@ function volverConfig() {
   mostrarPantalla('asistente');
 }
 
+function abrirMiscartas() {
+  renderMiscartas();
+  mostrarPantalla('miscartas');
+}
+
+function renderMiscartas() {
+  const lista = document.getElementById('lista-cartas');
+  if (!lista) return;
+  const cartas = estado.misCartas || [];
+  lista.innerHTML = '';
+  if (cartas.length === 0) {
+    const vacia = document.createElement('li');
+    vacia.className = 'lista-vacia';
+    vacia.textContent = 'Todavía no tenés cartas. ¡Creá la primera!';
+    lista.appendChild(vacia);
+    return;
+  }
+  cartas.forEach(carta => {
+    const li = document.createElement('li');
+    const cat = document.createElement('span');
+    cat.className = 'carta-item-cat';
+    cat.textContent = carta.categoria;
+    const txt = document.createElement('span');
+    txt.className = 'carta-item-texto';
+    txt.textContent = carta.texto;
+    const acciones = document.createElement('span');
+    acciones.className = 'carta-item-acciones';
+    const btnEditar = document.createElement('button');
+    btnEditar.type = 'button';
+    btnEditar.className = 'boton-icono';
+    btnEditar.textContent = '✏️';
+    btnEditar.setAttribute('aria-label', `Editar carta: ${carta.texto}`);
+    btnEditar.addEventListener('click', () => editarCarta(carta.id));
+    const btnBorrar = document.createElement('button');
+    btnBorrar.type = 'button';
+    btnBorrar.className = 'boton-icono';
+    btnBorrar.textContent = '🗑';
+    btnBorrar.setAttribute('aria-label', `Borrar carta: ${carta.texto}`);
+    btnBorrar.addEventListener('click', () => borrarCarta(carta.id));
+    acciones.appendChild(btnEditar);
+    acciones.appendChild(btnBorrar);
+    li.appendChild(cat);
+    li.appendChild(txt);
+    li.appendChild(acciones);
+    lista.appendChild(li);
+  });
+}
+
+function limpiarFormularioCarta() {
+  const categoria = document.getElementById('input-categoria');
+  const texto = document.getElementById('input-texto');
+  const boton = document.getElementById('btn-guardar-carta');
+  if (categoria) categoria.value = CATEGORIAS[0];
+  if (texto) texto.value = '';
+  if (boton) boton.textContent = 'Guardar carta';
+  editandoId = null;
+}
+
+function siguienteIdCarta() {
+  return (estado.misCartas || []).reduce((m, c) => Math.max(m, Number(c.id) || 0), 0) + 1;
+}
+
+function guardarCarta() {
+  const textoEl = document.getElementById('input-texto');
+  const categoriaEl = document.getElementById('input-categoria');
+  const texto = (textoEl?.value || '').trim();
+  if (!texto) {
+    if (textoEl) {
+      textoEl.classList.remove('input-error');
+      void textoEl.offsetWidth;
+      textoEl.classList.add('input-error');
+      textoEl.focus();
+    }
+    return;
+  }
+  const categoria = categoriaEl?.value || CATEGORIAS[0];
+  if (editandoId !== null) {
+    const carta = (estado.misCartas || []).find(c => c.id === editandoId);
+    if (carta) {
+      carta.categoria = categoria;
+      carta.texto = texto;
+    }
+  } else {
+    estado.misCartas.push({ id: siguienteIdCarta(), categoria, texto });
+  }
+  guardarEstado(estado);
+  limpiarFormularioCarta();
+  renderMiscartas();
+}
+
+function editarCarta(id) {
+  const carta = (estado.misCartas || []).find(c => c.id === id);
+  if (!carta) return;
+  const categoriaEl = document.getElementById('input-categoria');
+  const textoEl = document.getElementById('input-texto');
+  const boton = document.getElementById('btn-guardar-carta');
+  if (categoriaEl) categoriaEl.value = carta.categoria;
+  if (textoEl) textoEl.value = carta.texto;
+  if (boton) boton.textContent = 'Guardar cambios';
+  editandoId = id;
+  if (textoEl) textoEl.focus();
+}
+
+function borrarCarta(id) {
+  const carta = (estado.misCartas || []).find(c => c.id === id);
+  if (!carta) return;
+  if (!window.confirm(`¿Borrar esta carta?\n\n${carta.texto}`)) return;
+  estado.misCartas = estado.misCartas.filter(c => c.id !== id);
+  if (editandoId === id) limpiarFormularioCarta();
+  guardarEstado(estado);
+  renderMiscartas();
+}
+
+export function validarImportacion(datos) {
+  return !!datos && Array.isArray(datos.categorias) && Array.isArray(datos.cartas);
+}
+
+export function renumerarCartas(cartas, baseId = 1) {
+  return (cartas || []).map((c, i) => ({ ...c, id: (Number(baseId) || 0) + i }));
+}
+
+function exportarJSON() {
+  const datos = { categorias: CATEGORIAS, cartas: estado.misCartas || [] };
+  const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'cartas-usuario.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function importarJSON(input) {
+  const archivo = input?.files?.[0];
+  if (!archivo) return;
+  const lector = new FileReader();
+  lector.onload = () => {
+    try {
+      const datos = JSON.parse(lector.result);
+      if (!validarImportacion(datos)) {
+        window.alert('El archivo no tiene el formato válido de cartas');
+        return;
+      }
+      const nuevas = renumerarCartas(datos.cartas, siguienteIdCarta());
+      estado.misCartas.push(...nuevas);
+      guardarEstado(estado);
+      renderMiscartas();
+      window.alert(`Se importaron ${nuevas.length} cartas`);
+    } catch {
+      window.alert('El archivo no tiene el formato válido de cartas');
+    }
+  };
+  lector.onerror = () => window.alert('No se pudo leer el archivo');
+  lector.readAsText(archivo);
+  input.value = '';
+}
+
 function init() {
   sincronizarSonido();
   cargarCartas();
@@ -430,7 +593,23 @@ function init() {
   });
 
   const btnMisCartas = document.getElementById('btn-mis-cartas');
-  if (btnMisCartas) btnMisCartas.addEventListener('click', () => mostrarPantalla('miscartas'));
+  if (btnMisCartas) btnMisCartas.addEventListener('click', abrirMiscartas);
+
+  const formCarta = document.getElementById('form-carta');
+  if (formCarta) formCarta.addEventListener('submit', e => {
+    e.preventDefault();
+    guardarCarta();
+  });
+
+  const btnExportar = document.getElementById('btn-exportar');
+  if (btnExportar) btnExportar.addEventListener('click', exportarJSON);
+
+  const btnImportar = document.getElementById('btn-importar');
+  const inputImportar = document.getElementById('input-importar');
+  if (btnImportar && inputImportar) {
+    btnImportar.addEventListener('click', () => inputImportar.click());
+    inputImportar.addEventListener('change', () => importarJSON(inputImportar));
+  }
 
   document.querySelectorAll('.boton-silencio').forEach(b => b.addEventListener('click', toggleSilencio));
 
@@ -474,6 +653,12 @@ if (typeof window !== 'undefined') {
   window.rondaExtra = rondaExtra;
   window.reiniciar = reiniciar;
   window.volverConfig = volverConfig;
+  window.abrirMiscartas = abrirMiscartas;
+  window.guardarCarta = guardarCarta;
+  window.editarCarta = editarCarta;
+  window.borrarCarta = borrarCarta;
+  window.exportarJSON = exportarJSON;
+  window.importarJSON = importarJSON;
 }
 
 if (typeof document !== 'undefined') {
