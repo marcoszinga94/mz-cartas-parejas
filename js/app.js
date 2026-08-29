@@ -48,6 +48,7 @@ function mostrarPantalla(nombre) {
 function actualizarIconoSilencio() {
   document.querySelectorAll('.boton-silencio').forEach(b => {
     b.textContent = sonidos.activo ? '🔊' : '🔇';
+    b.classList.toggle('silencio-off', !sonidos.activo);
   });
 }
 
@@ -181,6 +182,164 @@ function seleccionarTiempo(chip) {
   });
 }
 
+let mazo = [];
+let prevId = null;
+let timerId = null;
+let resolviendo = false;
+
+const CIRCUNFERENCIA_ANILLO = 100.53;
+
+function renderMarcador() {
+  const marcador = document.getElementById('marcador');
+  if (marcador) marcador.dataset.turno = String(estado.turno);
+  const jugadores = [[1, 'marcador-p1', 'p1', 'puntos1'], [2, 'marcador-p2', 'p2', 'puntos2']];
+  jugadores.forEach(([num, id, nombreKey, puntosKey]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const nombre = el.querySelector('.nombre');
+    const puntos = el.querySelector('.puntos');
+    if (nombre) nombre.textContent = estado[nombreKey];
+    if (puntos) puntos.textContent = estado[puntosKey];
+    el.classList.toggle('turno-activo', estado.turno === num);
+  });
+}
+
+function pintarTiempo(restante) {
+  const total = Math.max(1, Number(estado.config.tiempo) || 45);
+  const tiempoEl = document.getElementById('anillo-tiempo');
+  if (tiempoEl) tiempoEl.textContent = formatTiempo(restante);
+  const arc = document.getElementById('anillo-arc');
+  if (arc) {
+    const frac = fraccionAnillo(total, restante);
+    arc.style.strokeDasharray = `${(frac * CIRCUNFERENCIA_ANILLO).toFixed(2)} ${CIRCUNFERENCIA_ANILLO}`;
+  }
+}
+
+function iniciarCronometro() {
+  clearInterval(timerId);
+  const total = Math.max(1, Number(estado.config.tiempo) || 45);
+  let restante = total;
+  const anillo = document.getElementById('anillo');
+  if (anillo) anillo.classList.toggle('tension', esTension(restante));
+  pintarTiempo(restante);
+  timerId = setInterval(() => {
+    restante -= 1;
+    if (restante <= 0) {
+      restante = 0;
+      if (anillo) anillo.classList.add('tension');
+      pintarTiempo(restante);
+      clearInterval(timerId);
+      timerId = null;
+      sonidos.tocar('timeout');
+      return;
+    }
+    if (anillo) anillo.classList.toggle('tension', esTension(restante));
+    pintarTiempo(restante);
+    if (esTension(restante)) sonidos.tocar('tic');
+  }, 1000);
+}
+
+function reiniciarAnimacionCarta() {
+  const carta = document.getElementById('carta');
+  if (!carta) return;
+  carta.style.animation = 'none';
+  void carta.offsetWidth;
+  carta.style.animation = '';
+}
+
+function animarSalida() {
+  const carta = document.getElementById('carta');
+  if (!carta) return;
+  carta.style.animation = 'shake 0.2s ease, salirCarta 0.32s ease 0.2s forwards';
+}
+
+function flotarCorazon(ganador) {
+  const carta = document.getElementById('carta');
+  if (!carta) return;
+  for (let i = 0; i < 3; i++) {
+    const corazon = document.createElement('span');
+    corazon.className = 'corazon';
+    corazon.textContent = '♥';
+    corazon.style.left = `${ganador === 1 ? 15 + Math.random() * 20 : 65 + Math.random() * 20}%`;
+    corazon.style.top = `${30 + Math.random() * 35}%`;
+    corazon.style.fontSize = `${1.1 + Math.random() * 1.1}rem`;
+    corazon.style.animationDelay = `${i * 0.1}s`;
+    carta.appendChild(corazon);
+    setTimeout(() => corazon.remove(), 1200);
+  }
+}
+
+function marcarPop(id) {
+  const jugador = document.getElementById(id);
+  if (!jugador) return;
+  const el = jugador.querySelector('.puntos') || jugador;
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+}
+
+function repartirCarta() {
+  if (mazo.length > 0) {
+    const { carta, deck: nuevoDeck } = robarCarta(mazo, prevId);
+    prevId = carta.id;
+    mazo = nuevoDeck;
+    const cat = document.getElementById('carta-categoria');
+    const txt = document.getElementById('carta-texto');
+    if (cat) cat.textContent = carta.categoria;
+    if (txt) txt.textContent = carta.texto;
+  } else {
+    const cat = document.getElementById('carta-categoria');
+    const txt = document.getElementById('carta-texto');
+    if (cat) cat.textContent = '—';
+    if (txt) txt.textContent = 'Cargando cartas…';
+  }
+  reiniciarAnimacionCarta();
+  iniciarCronometro();
+}
+
+function iniciarPartida() {
+  estado.puntos1 = 0;
+  estado.puntos2 = 0;
+  estado.turno = 1;
+  guardarEstado(estado);
+  mazo = mezclarDeck(mergeCards(cartasBase, cartasUsuario), estado.config.categorias);
+  prevId = null;
+  renderMarcador();
+  mostrarPantalla('partida');
+  repartirCarta();
+}
+
+function resolverCarta(hecho) {
+  if (resolviendo) return;
+  resolviendo = true;
+  clearInterval(timerId);
+  timerId = null;
+  if (hecho) {
+    if (estado.turno === 1) estado.puntos1 += 1;
+    else estado.puntos2 += 1;
+    sonidos.tocar('punto');
+    flotarCorazon(estado.turno);
+    marcarPop(estado.turno === 1 ? 'marcador-p1' : 'marcador-p2');
+  }
+  sonidos.tocar('flip');
+  animarSalida();
+  estado.turno = estado.turno === 1 ? 2 : 1;
+  renderMarcador();
+  guardarEstado(estado);
+  setTimeout(() => {
+    resolviendo = false;
+    repartirCarta();
+  }, 520);
+}
+
+function finalizarPartida() {
+  clearInterval(timerId);
+  timerId = null;
+  estado.enPartida = false;
+  guardarEstado(estado);
+  if (typeof window.mostrarFin === 'function') window.mostrarFin();
+}
+
 function init() {
   sincronizarSonido();
   cargarCartas();
@@ -212,10 +371,22 @@ function init() {
 
   const btnVolverInicio = document.getElementById('btn-volver-inicio');
   if (btnVolverInicio) btnVolverInicio.addEventListener('click', () => mostrarPantalla('inicio'));
+
+  const btnHecho = document.getElementById('btn-hecho');
+  if (btnHecho) btnHecho.addEventListener('click', () => resolverCarta(true));
+
+  const btnNoHecho = document.getElementById('btn-no-hecho');
+  if (btnNoHecho) btnNoHecho.addEventListener('click', () => resolverCarta(false));
+
+  const btnFinalizar = document.getElementById('btn-finalizar');
+  if (btnFinalizar) btnFinalizar.addEventListener('click', finalizarPartida);
 }
 
 if (typeof window !== 'undefined') {
   window.mostrarPantalla = mostrarPantalla;
+  window.iniciarPartida = iniciarPartida;
+  window.resolverCarta = resolverCarta;
+  window.finalizarPartida = finalizarPartida;
 }
 
 if (typeof document !== 'undefined') {

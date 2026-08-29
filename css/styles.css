@@ -522,7 +522,7 @@ select.input option {
   stroke: var(--tension);
 }
 
-#anillo.tension #anillo-tiempo {
+#anillo.tension ~ #anillo-tiempo {
   color: var(--tension);
 }
 
