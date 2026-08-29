@@ -88,15 +88,19 @@ if (typeof window !== 'undefined') {
     } catch { return null; }
   }
 
+  function claveChatLocal() {
+    return parejaId ? `cp.chat_local_${parejaId}` : 'cp.chat_local';
+  }
+
   function leerChatLocal() {
     try {
-      const raw = lsGet('cp.chat_local');
+      const raw = lsGet(claveChatLocal());
       return raw ? JSON.parse(raw) : [];
     } catch { return []; }
   }
 
   function guardarChatLocal(arr) {
-    lsSet('cp.chat_local', JSON.stringify(arr || []));
+    lsSet(claveChatLocal(), JSON.stringify(arr || []));
   }
 
   function nombreLocal(pos) {
@@ -661,6 +665,7 @@ if (typeof window !== 'undefined') {
     guardarParejaId(pid);
     sesionId = null;
     chatOrigen = 'mischats';
+    ultimoMensajeId = maxIdLocal();
     cargarChat();
     irA('chat');
     refrescarMensajes();
@@ -675,9 +680,9 @@ if (typeof window !== 'undefined') {
         throw new Error(d.error || 'No se pudo borrar');
       }
       if (pid === parejaId) {
-        parejaId = null;
         guardarChatLocal([]);
         ultimoMensajeId = 0;
+        parejaId = null;
         guardarParejaId(null);
         guardarUltimaSesion(null);
       }
