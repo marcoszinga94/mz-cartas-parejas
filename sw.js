@@ -1,7 +1,7 @@
-const CACHE = 'cartas-parejas-v3';
+const CACHE = 'cartas-parejas-v4';
 const ASSETS = [
   './', './index.html', './css/styles.css',
-  './js/app.js', './js/cards.js', './js/sound.js', './js/timer.js',
+  './js/app.js', './js/cards.js', './js/sound.js', './js/timer.js', './js/online.js',
   './data/cartas.json', './data/cartas-usuario.json',
   './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-180.png', './icons/icon.svg',
 ];

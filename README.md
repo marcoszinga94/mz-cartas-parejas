@@ -15,7 +15,58 @@ La aplicación es una carpeta con archivos comunes. No hay que compilar ni insta
 3. Arrastrar la carpeta (o el `.zip`) a la página y soltar.
 4. Listo: el servicio te da una dirección web (por ejemplo `https://tuapp.netlify.app`).
 
-No hace falta servidor ni base de datos. Las cartas y las partidas se guardan en el propio navegador.
+No hace falta servidor ni base de datos para jugar en el mismo teléfono: las cartas y las partidas se guardan en el propio navegador. El **modo online** (jugar entre dos dispositivos con chat) sí necesita internet y una API + base de datos (ver la sección "Modo online" más abajo).
+
+---
+
+## Modo online
+
+El modo online permite jugar entre dos teléfonos (en casa o a distancia) con un **código de 6 dígitos**, con chat y partida sincronizados en vivo.
+
+### Crear o unirse a una partida
+
+1. En la pantalla de inicio tocá **Modo online**.
+2. **Crear código**: tocá el botón y aparece la sala de espera con un código de 6 dígitos. Compartilo con tu pareja.
+3. **Unirme**: la otra persona entra al modo online, escribe el código y toca **Unirme**.
+4. Cuando los dos están conectados, quien creó la sala toca **Comenzar** y arranca la partida sincronizada: las cartas, el turno y el puntaje aparecen iguales en ambos teléfonos. El jugador que está fuera de turno ve los botones deshabilitados.
+
+Si salís de la sala, podés reanudarla con el botón **Reanudar última sesión** (aparece cuando hay una sesión guardada).
+
+### El chat y las fotos
+
+- En la sala o durante la partida tocá **💬** para abrir el chat.
+- Los **mensajes de texto** se envían en vivo: llegan al otro teléfono en unos segundos.
+- Las **fotos** (📷) se comprimen automáticamente (máximo ~1 MB) y se envían **en vivo**; además, se guardan **en el propio teléfono** (localStorage), porque no vuelven a viajar por el chat después de recibidas.
+- Las fotos quedan en el historial local de cada dispositivo.
+
+### Dónde se guardan los chats
+
+Los mensajes y las sesiones se guardan en una base de datos **Neon (Postgres serverless)** en la nube, identificados por pareja. Se mantienen **hasta que se borran a mano**: en **Mis chats** se listan las conversaciones y el botón **🗑** borra para siempre esa pareja y todos sus mensajes (en el servidor y en el teléfono).
+
+### Configuración para el desarrollador / cliente
+
+El modo online necesita una API serverless y una base de datos. Los pasos son:
+
+1. Crear una base de datos en **Neon** y copiar su *connection string* (el `DATABASE_URL`).
+2. Crear el esquema de tablas en esa base, corriendo desde la carpeta del proyecto:
+
+   ```bash
+   DATABASE_URL="postgresql://..." node scripts/migrate.mjs
+   ```
+
+   Debe mostrar `Esquema aplicado correctamente`.
+
+3. Configurar la variable de entorno en el hosting (Vercel) con el mismo valor:
+
+   ```bash
+   vercel env add DATABASE_URL
+   ```
+
+   Pegar la *connection string* y seleccionar **Production** (y **Preview** si se quiere).
+
+4. Subir el proyecto a Vercel como **Vercel Functions** (las carpetas `api/` se exponen como `/api/*`). El `DATABASE_URL` se lee del entorno: **nunca** debe ir en el código ni en el repositorio.
+
+Sin esa variable configurada, el modo online no puede conectarse; el resto del juego (modo local) sigue funcionando normalmente.
 
 ---
 

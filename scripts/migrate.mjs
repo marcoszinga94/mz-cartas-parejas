@@ -9,5 +9,8 @@ if (!url) {
 
 const sql = neon(url);
 const schema = readFileSync(new URL('../api/_schema.sql', import.meta.url), 'utf8');
-await sql(schema);
+const statements = schema.split(';').map((s) => s.trim()).filter(Boolean);
+for (const stmt of statements) {
+  await sql`${sql.unsafe(stmt)}`;
+}
 console.log('Esquema aplicado correctamente');
