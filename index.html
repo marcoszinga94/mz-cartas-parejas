@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#6b2540">
+  <meta name="description" content="Cartas Parejas — la noche de pareja. Preguntas, retos y momentos para jugar en pareja.">
+  <title>Cartas Parejas</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <main id="app">
+
+    <section id="pantalla-inicio" class="pantalla">
+      <div class="inicio-hero">
+        <h1><span class="titulo-corazon" aria-hidden="true">♥</span> Cartas Parejas</h1>
+        <p class="subtitulo">La noche de pareja</p>
+      </div>
+      <div class="inicio-acciones">
+        <button id="btn-jugar" class="boton boton-primario" type="button">Jugar</button>
+        <button id="btn-mis-cartas" class="boton boton-secundario" type="button">Mis cartas</button>
+      </div>
+      <button id="btn-silencio-inicio" class="boton-silencio" type="button" aria-label="Silenciar sonido">🔊</button>
+    </section>
+
+    <section id="pantalla-asistente" class="pantalla oculto">
+      <div id="paso-progreso" class="paso-progreso" aria-hidden="true">
+        <span class="progreso-segmento activo"></span>
+        <span class="progreso-segmento"></span>
+        <span class="progreso-segmento"></span>
+      </div>
+      <h2 id="paso-titulo">Jugadores</h2>
+      <div class="pasos">
+        <div id="paso-1" class="paso">
+          <label class="campo">
+            <span class="campo-etiqueta">Jugador 1</span>
+            <input id="input-p1" class="input" type="text" maxlength="20" value="Jugador 1">
+          </label>
+          <label class="campo">
+            <span class="campo-etiqueta">Jugador 2</span>
+            <input id="input-p2" class="input" type="text" maxlength="20" value="Jugador 2">
+          </label>
+        </div>
+        <div id="paso-2" class="paso oculto">
+          <p class="paso-descripcion">Elegí las categorías</p>
+          <div id="chips-categorias" class="chips">
+            <button type="button" class="chip" data-categoria="Preguntas">Preguntas</button>
+            <button type="button" class="chip" data-categoria="Retos">Retos</button>
+            <button type="button" class="chip" data-categoria="Picante">Picante</button>
+            <button type="button" class="chip" data-categoria="Romantico">Romantico</button>
+            <button type="button" class="chip" data-categoria="Loco">Loco</button>
+          </div>
+        </div>
+        <div id="paso-3" class="paso oculto">
+          <p class="paso-descripcion">Tiempo por carta</p>
+          <div id="presets-tiempo" class="chips">
+            <button type="button" class="chip" data-tiempo="15">15 s</button>
+            <button type="button" class="chip" data-tiempo="30">30 s</button>
+            <button type="button" class="chip chip-activo" data-tiempo="45">45 s</button>
+            <button type="button" class="chip" data-tiempo="60">60 s</button>
+          </div>
+          <label class="campo">
+            <span class="campo-etiqueta">Rondas (0 = infinitas)</span>
+            <input id="input-rondas" class="input" type="number" min="0" max="20" value="0" inputmode="numeric">
+          </label>
+        </div>
+      </div>
+      <div class="paso-botones">
+        <button id="btn-paso-atras" class="boton boton-secundario" type="button">Atrás</button>
+        <button id="btn-paso-siguiente" class="boton boton-primario" type="button">Siguiente</button>
+      </div>
+    </section>
+
+    <section id="pantalla-partida" class="pantalla oculto">
+      <div id="marcador" class="marcador" data-turno="1">
+        <div id="marcador-p1" class="marcador-jugador">
+          <div class="nombre">Jugador 1</div>
+          <div class="puntos">0</div>
+        </div>
+        <div class="marcador-divisor" aria-hidden="true"></div>
+        <div id="marcador-p2" class="marcador-jugador">
+          <div class="nombre">Jugador 2</div>
+          <div class="puntos">0</div>
+        </div>
+      </div>
+      <div id="banner-extra" class="banner-extra oculto">Ronda extra · el primer punto gana</div>
+      <div class="partida-cuerpo">
+        <div class="anillo-contenedor">
+          <svg id="anillo" viewBox="0 0 36 36" aria-hidden="true">
+            <path id="anillo-fondo" d="M18 2 a16 16 0 0 1 0 32 a16 16 0 0 1 0 -32" fill="none" stroke="var(--vino)" stroke-width="3.5"/>
+            <path id="anillo-arc" d="M18 2 a16 16 0 0 1 0 32 a16 16 0 0 1 0 -32" fill="none" stroke="var(--frambuesa)" stroke-width="3.5" stroke-linecap="round"/>
+          </svg>
+          <div id="anillo-tiempo">45</div>
+        </div>
+        <div id="carta" class="carta">
+          <span id="carta-categoria" class="carta-categoria">Preguntas</span>
+          <p id="carta-texto">¿Cuál fue nuestro primer beso?</p>
+        </div>
+        <div class="partida-acciones">
+          <button id="btn-hecho" class="boton boton-hecho" type="button">Hecho</button>
+          <button id="btn-no-hecho" class="boton boton-no-hecho" type="button">No hecho</button>
+        </div>
+      </div>
+      <div class="partida-pie">
+        <button id="btn-finalizar" class="boton-enlace" type="button">Finalizar</button>
+        <button id="btn-silencio" class="boton-silencio" type="button" aria-label="Silenciar sonido">🔊</button>
+      </div>
+    </section>
+
+    <section id="pantalla-fin" class="pantalla oculto">
+      <div class="fin-contenido">
+        <div class="fin-corona" aria-hidden="true">👑</div>
+        <h2 id="fin-titulo">¡Ganó Jugador 1!</h2>
+        <div id="fin-marcador" class="fin-marcador">
+          <span>Jugador 1 · 0</span>
+          <span>Jugador 2 · 0</span>
+        </div>
+      </div>
+      <div class="fin-acciones">
+        <button id="btn-ronda-extra" class="boton boton-primario oculto" type="button">Ronda extra</button>
+        <button id="btn-reiniciar" class="boton boton-primario" type="button">Jugar de nuevo</button>
+        <button id="btn-volver-config" class="boton boton-secundario" type="button">Configurar otra partida</button>
+      </div>
+    </section>
+
+    <section id="pantalla-miscartas" class="pantalla oculto">
+      <h2 class="pantalla-titulo">Mis cartas</h2>
+      <form id="form-carta" class="form-carta">
+        <label class="campo">
+          <span class="campo-etiqueta">Categoría</span>
+          <select id="input-categoria" class="input">
+            <option value="Preguntas">Preguntas</option>
+            <option value="Retos">Retos</option>
+            <option value="Picante">Picante</option>
+            <option value="Romantico">Romantico</option>
+            <option value="Loco">Loco</option>
+          </select>
+        </label>
+        <label class="campo">
+          <span class="campo-etiqueta">Texto</span>
+          <textarea id="input-texto" class="input" rows="3" maxlength="200" placeholder="Escribí tu carta..."></textarea>
+        </label>
+        <button id="btn-guardar-carta" class="boton boton-primario" type="submit">Guardar carta</button>
+      </form>
+      <ul id="lista-cartas" class="lista-cartas"></ul>
+      <div class="miscartas-acciones">
+        <button id="btn-exportar" class="boton boton-secundario" type="button">Exportar JSON</button>
+        <button id="btn-importar" class="boton boton-secundario" type="button">Importar JSON</button>
+        <input type="file" id="input-importar" accept="application/json,.json" hidden>
+      </div>
+      <button id="btn-volver-inicio" class="boton-enlace" type="button">Volver al inicio</button>
+    </section>
+
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
