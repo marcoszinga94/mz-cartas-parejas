@@ -43,6 +43,10 @@ let audioDesbloqueado = false;
 const CATEGORIAS = ['Preguntas', 'Retos', 'Picante', 'Romantico', 'Loco'];
 let editandoId = null;
 
+let swipeInicioX = 0;
+let swipeInicioY = 0;
+let swipeActivo = false;
+
 function mostrarPantalla(nombre) {
   document.querySelectorAll('.pantalla').forEach(el => el.classList.add('oculto'));
   const destino = document.getElementById(`pantalla-${nombre}`);
@@ -266,10 +270,11 @@ function reiniciarAnimacionCarta() {
   carta.style.animation = '';
 }
 
-function animarSalida() {
+function animarSalida(dir = 1) {
   const carta = document.getElementById('carta');
   if (!carta) return;
-  carta.style.animation = 'shake 0.2s ease, salirCarta 0.32s ease 0.2s forwards';
+  const keyframe = dir >= 0 ? 'salirCarta' : 'salirCartaIzq';
+  carta.style.animation = `shake 0.2s ease, ${keyframe} 0.32s ease 0.2s forwards`;
 }
 
 function flotarCorazon(ganador) {
@@ -350,7 +355,7 @@ function iniciarPartida(resetScores = true) {
   repartirCarta();
 }
 
-function resolverCarta(hecho) {
+function resolverCarta(hecho, dir = hecho ? 1 : -1, desdeSwipe = false) {
   if (resolviendo) return;
   resolviendo = true;
   clearInterval(timerId);
@@ -367,15 +372,23 @@ function resolverCarta(hecho) {
     return;
   }
   sonidos.tocar('flip');
-  animarSalida();
+  if (!desdeSwipe) animarSalida(dir);
   estado.turno = estado.turno === 1 ? 2 : 1;
   renderMarcador();
   guardarEstado(estado);
   transicionTimer = setTimeout(() => {
     transicionTimer = null;
     resolviendo = false;
+    if (desdeSwipe) {
+      const carta = document.getElementById('carta');
+      if (carta) {
+        carta.style.transition = '';
+        carta.style.transform = '';
+        carta.style.opacity = '';
+      }
+    }
     repartirCarta();
-  }, 520);
+  }, desdeSwipe ? 260 : 520);
 }
 
 function finalizarPartida() {
@@ -599,8 +612,59 @@ function importarJSON(input) {
   input.value = '';
 }
 
+function iniciarSwipe(x, y) {
+  if (resolviendo) return;
+  swipeActivo = true;
+  swipeInicioX = x;
+  swipeInicioY = y;
+  const carta = document.getElementById('carta');
+  if (carta) {
+    carta.style.animation = 'none';
+    carta.style.transition = 'transform 0s, opacity 0s';
+  }
+}
+
+function moverSwipe(x, y) {
+  if (!swipeActivo) return;
+  const carta = document.getElementById('carta');
+  if (!carta) return;
+  const dx = x - swipeInicioX;
+  const dy = y - swipeInicioY;
+  if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+  if (Math.abs(dy) > Math.abs(dx)) return;
+  const rot = Math.max(-14, Math.min(14, dx * 0.04));
+  carta.style.transform = `translateX(${dx}px) rotate(${rot}deg)`;
+  carta.style.opacity = String(Math.max(0.35, 1 - Math.abs(dx) / 600));
+}
+
+function terminarSwipe(x, y) {
+  if (!swipeActivo) return;
+  swipeActivo = false;
+  const carta = document.getElementById('carta');
+  if (!carta) return;
+  const dx = x - swipeInicioX;
+  const umbral = Math.min(80, carta.offsetWidth * 0.3);
+  if (Math.abs(dx) > umbral) {
+    const hecho = dx > 0;
+    const dir = hecho ? 1 : -1;
+    carta.style.transition = 'transform 0.22s ease-out, opacity 0.22s ease-out';
+    carta.style.transform = `translateX(${dir * (carta.offsetWidth + 60)}px) rotate(${dir * 16}deg)`;
+    carta.style.opacity = '0';
+    resolverCarta(hecho, dir, true);
+  } else {
+    carta.style.transition = 'transform 0.2s ease-out';
+    carta.style.transform = '';
+    setTimeout(() => {
+      if (carta) {
+        carta.style.transition = '';
+        carta.style.opacity = '';
+        reiniciarAnimacionCarta();
+      }
+    }, 220);
+  }
+}
+
 function init() {
-  sincronizarSonido();
   cargarCartas();
   if (estado.enPartida && (estado.config?.categorias?.length ?? 0) > 0) {
     iniciarPartida(false);
@@ -656,6 +720,14 @@ function init() {
 
   const btnNoHecho = document.getElementById('btn-no-hecho');
   if (btnNoHecho) btnNoHecho.addEventListener('click', () => resolverCarta(false));
+
+  const cartaSwipe = document.getElementById('carta');
+  if (cartaSwipe) {
+    cartaSwipe.addEventListener('pointerdown', e => iniciarSwipe(e.clientX, e.clientY));
+    cartaSwipe.addEventListener('pointermove', e => moverSwipe(e.clientX, e.clientY));
+    cartaSwipe.addEventListener('pointerup', e => terminarSwipe(e.clientX, e.clientY));
+    cartaSwipe.addEventListener('pointercancel', () => { swipeActivo = false; });
+  }
 
   const btnFinalizar = document.getElementById('btn-finalizar');
   if (btnFinalizar) btnFinalizar.addEventListener('click', finalizarPartida);

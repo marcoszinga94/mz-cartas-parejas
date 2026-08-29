@@ -550,6 +550,8 @@ select.input option {
   box-shadow: var(--sombra-carta);
   text-align: center;
   animation: entrarCarta 0.35s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  touch-action: none;
+  will-change: transform;
 }
 
 .carta-categoria {
@@ -775,6 +777,17 @@ select.input option {
   100% {
     opacity: 0;
     transform: scale(0.85) rotate(3deg) translateX(48px);
+  }
+}
+
+@keyframes salirCartaIzq {
+  0% {
+    opacity: 1;
+    transform: scale(1) rotate(0) translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.85) rotate(-3deg) translateX(-48px);
   }
 }
 
