@@ -40,7 +40,7 @@ let cartasUsuario = [];
 let pasoActual = 1;
 let audioDesbloqueado = false;
 
-const CATEGORIAS = ['Preguntas', 'Retos', 'Picante', 'Romantico', 'Loco'];
+const CATEGORIAS = ['Preguntas', 'Retos', 'Picante', 'Romantico', 'Loco', 'Hot'];
 let editandoId = null;
 
 let swipeInicioX = 0;
@@ -367,7 +367,7 @@ function resolverCarta(hecho, dir = hecho ? 1 : -1, desdeSwipe = false) {
     flotarCorazon(estado.turno);
     marcarPop(estado.turno === 1 ? 'marcador-p1' : 'marcador-p2');
   }
-  if (enRondaExtra && hecho) {
+  if (enRondaExtra && !hecho) {
     finalizarPartida();
     return;
   }
