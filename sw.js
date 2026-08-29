@@ -1,4 +1,4 @@
-const CACHE = 'cartas-parejas-v2';
+const CACHE = 'cartas-parejas-v3';
 const ASSETS = [
   './', './index.html', './css/styles.css',
   './js/app.js', './js/cards.js', './js/sound.js', './js/timer.js',
@@ -19,11 +19,11 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then((r) => r || fetch(e.request).then((resp) => {
+    fetch(e.request).then((resp) => {
       if (!resp.ok) return resp;
       const clone = resp.clone();
       caches.open(CACHE).then((c) => c.put(e.request, clone));
       return resp;
-    }).catch(() => (e.request.mode === 'navigate' ? caches.match('./index.html') : caches.match(e.request))))
+    }).catch(() => caches.match(e.request).then((r) => r || (e.request.mode === 'navigate' ? caches.match('./index.html') : undefined)))
   );
 });

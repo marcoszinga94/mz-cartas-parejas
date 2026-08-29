@@ -103,7 +103,7 @@ Sin librerías externas, sin CDN, fuentes del sistema. Todo offline tras primera
 
 ## PWA / Offline
 
-- `sw.js`: precache de todos los assets (cache-first). En runtime solo cachea respuestas OK; el fallback a `index.html` aplica únicamente a requests de navegación (nunca sirve HTML para assets fallidos). `skipWaiting` + `clients.claim`. Cache versionada (`cartas-parejas-v2`).
+- `sw.js`: precache de todos los assets (install) para garantizar el offline. Estrategia **network-first** en runtime: intenta la red y cachea la respuesta (solo respuestas OK), con fallback a caché si no hay conexión (y a `index.html` para navegaciones). Esto asegura que las actualizaciones de contenido lleguen siempre que haya red, sin depender de bumpear la versión de la caché. `skipWaiting` + `clients.claim`. Cache versionada (`cartas-parejas-v3`).
 - `manifest.webmanifest`: name "Cartas Parejas", short_name "CartasParejas", `id`, `lang: es`, `description`, theme_color vino, background #140e14, display standalone, iconos SVG/PNG (192 y 512 con purpose "any maskable").
 - Iconos: `icons/icon.svg` (corazón sobre gradiente vino) + PNG 180 (apple-touch-icon), 192 y 512.
 - `<link rel="apple-touch-icon">` para instalación en iPhone.
