@@ -41,7 +41,7 @@ let cartasUsuario = [];
 let pasoActual = 1;
 let audioDesbloqueado = false;
 
-const CATEGORIAS = ['Preguntas', 'Retos', 'Picante', 'Romantico', 'Loco', 'Hot'];
+const CATEGORIAS = ['Preguntas', 'Retos', 'Picante', 'Romantico', 'Loco', 'Hot', 'Sexting'];
 let editandoId = null;
 
 let swipeInicioX = 0;
