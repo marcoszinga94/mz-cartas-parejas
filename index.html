@@ -79,6 +79,9 @@
     </section>
 
     <section id="pantalla-partida" class="pantalla oculto">
+      <div class="partida-tools">
+        <button id="btn-silencio" class="boton-silencio" type="button" aria-label="Silenciar sonido">🔊</button>
+      </div>
       <div id="marcador" class="marcador" data-turno="1">
         <div id="marcador-p1" class="marcador-jugador">
           <div class="nombre">Jugador 1</div>
@@ -110,7 +113,6 @@
       </div>
       <div class="partida-pie">
         <button id="btn-finalizar" class="boton-enlace" type="button">Finalizar</button>
-        <button id="btn-silencio" class="boton-silencio" type="button" aria-label="Silenciar sonido">🔊</button>
       </div>
     </section>
 
@@ -188,6 +190,10 @@
     </section>
 
     <section id="pantalla-online-partida" class="pantalla oculto">
+      <div class="partida-tools">
+        <button id="btn-online-chat" class="boton-herramienta" type="button" aria-label="Abrir chat">💬</button>
+        <button id="btn-online-silencio" class="boton-silencio" type="button" aria-label="Silenciar sonido">🔊</button>
+      </div>
       <div id="online-banner" class="online-banner">Conectando…</div>
       <div id="marcador-online" class="marcador" data-turno="1">
         <div id="online-marcador-p1" class="marcador-jugador">
@@ -218,7 +224,6 @@
         </div>
       </div>
       <div class="partida-pie">
-        <button id="btn-online-chat" class="boton-silencio" type="button" aria-label="Abrir chat">💬</button>
         <button id="btn-online-salir" class="boton-enlace" type="button">Salir</button>
       </div>
     </section>

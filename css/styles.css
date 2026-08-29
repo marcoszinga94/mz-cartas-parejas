@@ -170,7 +170,8 @@ button {
   transform: scale(0.92);
 }
 
-.boton-silencio {
+.boton-silencio,
+.boton-herramienta {
   width: 48px;
   height: 48px;
   display: inline-flex;
@@ -186,7 +187,8 @@ button {
   transition: transform 0.12s ease, opacity 0.15s ease, border-color 0.12s ease;
 }
 
-.boton-silencio:active {
+.boton-silencio:active,
+.boton-herramienta:active {
   transform: scale(0.97);
 }
 
@@ -583,6 +585,16 @@ select.input option {
 .partida-acciones .boton {
   flex: 1;
   min-width: 0;
+}
+
+.partida-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  padding: 0 8px;
 }
 
 .partida-pie {
