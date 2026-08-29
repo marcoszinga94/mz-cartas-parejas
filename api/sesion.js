@@ -18,6 +18,7 @@ export async function handle(req, res, db = getSql()) {
     return res.status(200).json({ codigo, sesion_id: rows[0].id });
   } catch (e) {
     console.error(e.message);
+    if (e?.code === '23503') return res.status(404).json({ error: 'La pareja ya no existe' });
     return res.status(500).json({ error: 'Error interno' });
   }
 }

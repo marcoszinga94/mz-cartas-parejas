@@ -311,6 +311,36 @@ if (typeof window !== 'undefined') {
         }),
       });
       const d = await r.json();
+      if (!r.ok && r.status === 404 && pid) {
+        guardarParejaId(null);
+        const rp = await fetch('/api/pareja', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dispositivo_id: did }),
+        });
+        const dp = await rp.json();
+        if (!rp.ok) throw new Error(dp.error || 'No se pudo crear la pareja');
+        pid = dp.pareja_id;
+        guardarParejaId(pid);
+        const r2 = await fetch('/api/sesion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            pareja_id: pid, dispositivo_id: did, nombre: nombreLocal(1), categorias: categoriasElegidas(),
+          }),
+        });
+        const d2 = await r2.json();
+        if (!r2.ok) throw new Error(d2.error || 'No se pudo crear la sala');
+        parejaId = pid;
+        sesionId = d2.sesion_id;
+        soyCreador = true;
+        guardarUltimaSesion({ sesion_id: d2.sesion_id, codigo: d2.codigo, pareja_id: pid, soyCreador: true });
+        ultimoMensajeId = maxIdLocal();
+        estadoOnline = null;
+        mostrarSala(d2.codigo);
+        iniciarPolling(d2.sesion_id);
+        return;
+      }
       if (!r.ok) throw new Error(d.error || 'No se pudo crear la sala');
       parejaId = pid;
       sesionId = d.sesion_id;
