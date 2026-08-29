@@ -34,6 +34,10 @@ export class Sonidos {
     this.activo = true;
   }
   setActivo(v) { this.activo = !!v; }
+  desbloquear() {
+    if (typeof window === 'undefined') return;
+    getCtx();
+  }
   tocar(nombre) {
     if (!this.activo || typeof window === 'undefined') return;
     const ctx = getCtx();

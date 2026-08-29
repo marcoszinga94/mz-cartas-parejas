@@ -66,22 +66,17 @@ function toggleSilencio() {
 function desbloquearAudio() {
   if (audioDesbloqueado) return;
   audioDesbloqueado = true;
-  sonidos.tocar('flip');
+  sonidos.desbloquear();
 }
 
 async function cargarCartas() {
   const leer = (r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status))));
-  try {
-    const [base, usuario] = await Promise.all([
-      fetch('./data/cartas.json').then(leer),
-      fetch('./data/cartas-usuario.json').then(leer),
-    ]);
-    cartasBase = base.cartas || [];
-    cartasUsuario = usuario.cartas || [];
-  } catch {
-    cartasBase = [];
-    cartasUsuario = [];
-  }
+  const [base, usuario] = await Promise.allSettled([
+    fetch('./data/cartas.json').then(leer),
+    fetch('./data/cartas-usuario.json').then(leer),
+  ]);
+  cartasBase = (base.status === 'fulfilled' && base.value.cartas) || [];
+  cartasUsuario = (usuario.status === 'fulfilled' && usuario.value.cartas) || [];
 }
 
 function actualizarProgreso() {
