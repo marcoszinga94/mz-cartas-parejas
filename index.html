@@ -23,6 +23,7 @@
       <div class="inicio-acciones">
         <button id="btn-jugar" class="boton boton-primario" type="button">Jugar</button>
         <button id="btn-mis-cartas" class="boton boton-secundario" type="button">Mis cartas</button>
+        <button id="btn-modo-online" class="boton boton-secundario" type="button">Modo online</button>
       </div>
       <button id="btn-silencio-inicio" class="boton-silencio" type="button" aria-label="Silenciar sonido">🔊</button>
     </section>
@@ -155,6 +156,92 @@
         <input type="file" id="input-importar" accept="application/json,.json" hidden>
       </div>
       <button id="btn-volver-inicio" class="boton-enlace" type="button">Volver al inicio</button>
+    </section>
+
+    <section id="pantalla-online" class="pantalla oculto">
+      <h2 class="pantalla-titulo">Modo online</h2>
+      <div class="online-hub">
+        <button id="btn-crear-sala" class="boton boton-primario" type="button">Crear código</button>
+        <div class="online-join">
+          <input id="input-codigo" class="input" type="text" inputmode="numeric" maxlength="8" placeholder="Código de 6 dígitos">
+          <button id="btn-unirse-sala" class="boton boton-secundario" type="button">Unirme</button>
+        </div>
+        <button id="btn-reanudar-sala" class="boton boton-secundario oculto" type="button">Reanudar última sesión</button>
+        <button id="btn-mis-chats" class="boton boton-secundario" type="button">Mis chats</button>
+        <p id="online-aviso" class="online-aviso" role="status"></p>
+        <button id="btn-volver-online" class="boton-enlace" type="button">Volver</button>
+      </div>
+    </section>
+
+    <section id="pantalla-sala" class="pantalla oculto">
+      <div class="sala-contenido">
+        <h2 class="pantalla-titulo">Sala de espera</h2>
+        <div id="sala-codigo" class="sala-codigo">------</div>
+        <p class="sala-hint">Compartí este código con tu pareja</p>
+        <div id="sala-jugadores" class="sala-jugadores"></div>
+        <div id="sala-estado" class="sala-estado">Esperando al otro jugador…</div>
+        <button id="btn-comenzar-online" class="boton boton-primario oculto" type="button">Comenzar</button>
+        <button id="btn-chat-sala" class="boton boton-secundario" type="button">Chat 💬</button>
+        <button id="btn-salir-sala" class="boton-enlace" type="button">Salir</button>
+      </div>
+    </section>
+
+    <section id="pantalla-online-partida" class="pantalla oculto">
+      <div id="online-banner" class="online-banner">Conectando…</div>
+      <div id="marcador-online" class="marcador" data-turno="1">
+        <div id="online-marcador-p1" class="marcador-jugador">
+          <div class="nombre">Jugador 1</div>
+          <div class="puntos">0</div>
+        </div>
+        <div class="marcador-divisor" aria-hidden="true"></div>
+        <div id="online-marcador-p2" class="marcador-jugador">
+          <div class="nombre">Jugador 2</div>
+          <div class="puntos">0</div>
+        </div>
+      </div>
+      <div class="partida-cuerpo">
+        <div class="anillo-contenedor">
+          <svg id="anillo-online" viewBox="0 0 36 36" aria-hidden="true">
+            <path d="M18 2 a16 16 0 0 1 0 32 a16 16 0 0 1 0 -32" fill="none" stroke="var(--vino)" stroke-width="3.5"/>
+            <path id="anillo-online-arc" d="M18 2 a16 16 0 0 1 0 32 a16 16 0 0 1 0 -32" fill="none" stroke="var(--frambuesa)" stroke-width="3.5" stroke-linecap="round"/>
+          </svg>
+          <div id="anillo-online-tiempo">45</div>
+        </div>
+        <div id="carta-online" class="carta">
+          <span id="online-carta-categoria" class="carta-categoria">—</span>
+          <p id="online-carta-texto">Esperando carta…</p>
+        </div>
+        <div class="partida-acciones">
+          <button id="btn-online-no-hecho" class="boton boton-no-hecho" type="button">No hecho</button>
+          <button id="btn-online-hecho" class="boton boton-hecho" type="button">Hecho</button>
+        </div>
+      </div>
+      <div class="partida-pie">
+        <button id="btn-online-chat" class="boton-silencio" type="button" aria-label="Abrir chat">💬</button>
+        <button id="btn-online-salir" class="boton-enlace" type="button">Salir</button>
+      </div>
+    </section>
+
+    <section id="pantalla-chat" class="pantalla oculto">
+      <div class="chat-cabecera">
+        <button id="btn-chat-atras" class="boton-enlace" type="button">← Volver</button>
+        <h2 class="pantalla-titulo">Chat</h2>
+      </div>
+      <div id="chat-mensajes" class="chat-mensajes"></div>
+      <div class="chat-input">
+        <label class="chat-foto" aria-label="Enviar foto">
+          📷
+          <input id="input-chat-foto" type="file" accept="image/*" hidden>
+        </label>
+        <input id="input-chat-texto" class="input" type="text" placeholder="Escribí un mensaje..." maxlength="500">
+        <button id="btn-chat-enviar" class="boton boton-primario" type="button">Enviar</button>
+      </div>
+    </section>
+
+    <section id="pantalla-mischats" class="pantalla oculto">
+      <h2 class="pantalla-titulo">Mis chats</h2>
+      <div id="lista-chats" class="lista-chats"></div>
+      <button id="btn-volver-online-chats" class="boton-enlace" type="button">Volver</button>
     </section>
 
   </main>

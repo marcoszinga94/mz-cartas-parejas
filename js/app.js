@@ -1,6 +1,7 @@
 import { mergeCards, mezclarDeck, robarCarta } from './cards.js';
 import { Sonidos } from './sound.js';
 import { formatTiempo, fraccionAnillo, esTension } from './timer.js';
+import './online.js';
 
 export function estadoInicial() {
   return {
@@ -684,6 +685,12 @@ function init() {
 
   const btnMisCartas = document.getElementById('btn-mis-cartas');
   if (btnMisCartas) btnMisCartas.addEventListener('click', abrirMiscartas);
+
+  const btnModoOnline = document.getElementById('btn-modo-online');
+  if (btnModoOnline) btnModoOnline.addEventListener('click', () => {
+    window.Online?.iniciar();
+    mostrarPantalla('online');
+  });
 
   const formCarta = document.getElementById('form-carta');
   if (formCarta) formCarta.addEventListener('submit', e => {

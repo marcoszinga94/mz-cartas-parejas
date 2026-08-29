@@ -60,6 +60,7 @@ button {
   min-height: 100dvh;
   padding: calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px);
   text-align: center;
+  overflow-y: auto;
 }
 
 .pantalla > * {
@@ -566,7 +567,8 @@ select.input option {
   text-transform: uppercase;
 }
 
-#carta-texto {
+#carta-texto,
+#online-carta-texto {
   color: #fff4f7;
   font-size: 1.35rem;
   font-weight: 500;
@@ -756,6 +758,318 @@ select.input option {
   z-index: 100;
   pointer-events: none;
   animation: confeti linear forwards;
+}
+
+/* ── Modo online ─────────────────────────────────────────── */
+
+#pantalla-online,
+#pantalla-sala,
+#pantalla-mischats {
+  justify-content: flex-start;
+  gap: 20px;
+}
+
+.online-hub {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.online-join {
+  display: flex;
+  gap: 8px;
+}
+
+.online-join .input {
+  flex: 1;
+  text-align: center;
+  letter-spacing: 0.2em;
+  font-size: 1.2rem;
+}
+
+.online-join .boton {
+  flex-shrink: 0;
+  padding: 14px 18px;
+}
+
+.online-aviso {
+  min-height: 1.2em;
+  color: var(--tension);
+  font-size: 0.85rem;
+  margin: -6px 0;
+}
+
+.sala-contenido {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.sala-codigo {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: 0.35em;
+  color: var(--rosa);
+  background: var(--surface);
+  border: 2px dashed var(--frambuesa);
+  border-radius: 16px;
+  padding: 18px 22px;
+}
+
+.sala-hint {
+  color: var(--lavanda);
+  font-size: 0.9rem;
+  margin-top: -10px;
+}
+
+.sala-jugadores {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.sala-jugadores .jugador {
+  background: var(--surface);
+  border: 1px solid var(--vino);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: var(--texto);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.sala-jugadores .jugador .marca {
+  color: var(--frambuesa);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.sala-jugadores .jugador.espera {
+  color: var(--inactivo);
+  font-style: italic;
+  justify-content: center;
+}
+
+.sala-estado {
+  color: var(--inactivo);
+  font-size: 0.92rem;
+}
+
+#pantalla-online-partida {
+  justify-content: flex-start;
+  gap: 12px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.online-banner {
+  width: 100%;
+  text-align: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--rosa);
+  font-size: 0.8rem;
+}
+
+.online-banner.desconectado {
+  color: var(--tension);
+  border: 1px solid var(--tension);
+}
+
+#anillo-online {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#anillo-online-arc {
+  stroke: var(--frambuesa);
+  stroke-dasharray: 100 100;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dasharray 0.5s linear, stroke 0.2s ease;
+}
+
+#anillo-online-tiempo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: var(--texto);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.2s ease;
+}
+
+#anillo-online.tension #anillo-online-arc {
+  stroke: var(--tension);
+}
+
+#anillo-online.tension ~ #anillo-online-tiempo {
+  color: var(--tension);
+  animation: latir 0.6s ease-in-out infinite;
+}
+
+#pantalla-chat {
+  height: 100dvh;
+  justify-content: flex-start;
+  gap: 10px;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
+  overflow: hidden;
+}
+
+.chat-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.chat-cabecera .pantalla-titulo {
+  font-size: 1.25rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-right: 90px;
+}
+
+.chat-mensajes {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 0;
+}
+
+.chat-burbuja {
+  max-width: 78%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 0.95rem;
+  word-break: break-word;
+  animation: entrarPaso 0.2s ease both;
+}
+
+.chat-burbuja.propia {
+  align-self: flex-end;
+  background: var(--grad-btn);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-burbuja.ajena {
+  align-self: flex-start;
+  background: var(--surface);
+  color: var(--texto);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-burbuja .hora {
+  display: block;
+  font-size: 0.68rem;
+  opacity: 0.75;
+  margin-top: 4px;
+  text-align: right;
+}
+
+.chat-burbuja img {
+  max-width: 220px;
+  border-radius: 10px;
+  display: block;
+}
+
+.chat-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.chat-input .input {
+  flex: 1;
+}
+
+.chat-input .boton {
+  flex-shrink: 0;
+  padding: 14px 18px;
+}
+
+.chat-foto {
+  font-size: 1.5rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.chat-vacio {
+  color: var(--inactivo);
+  font-size: 0.9rem;
+  font-style: italic;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.lista-chats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.chat-item {
+  background: var(--surface);
+  border: 1px solid var(--vino);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  gap: 10px;
+  transition: border-color 0.15s ease;
+}
+
+.chat-item:active {
+  border-color: var(--frambuesa);
+}
+
+.chat-item .info {
+  flex: 1;
+  min-width: 0;
+}
+
+.chat-item-titulo {
+  display: block;
+  color: var(--texto);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.chat-item .ultimo {
+  display: block;
+  color: var(--inactivo);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-item .boton-icono {
+  flex-shrink: 0;
 }
 
 @keyframes entrarCarta {
