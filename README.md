@@ -35,7 +35,7 @@ El archivo `data/cartas.json` contiene todas las cartas del juego. Se edita con 
 
 ### Cambiar el texto de una carta
 
-Encuentra la línea de la carta y cambia lo que está entre comillas en `"texto": "...";`. Guarda el archivo y recarga la página.
+Encuentra la línea de la carta y cambia lo que está entre comillas en `"texto": "..."`. Guarda el archivo y recarga la página.
 
 ### Agregar una carta nueva
 

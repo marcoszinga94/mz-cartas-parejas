@@ -3,7 +3,7 @@ const ASSETS = [
   './', './index.html', './css/styles.css',
   './js/app.js', './js/cards.js', './js/sound.js', './js/timer.js',
   './data/cartas.json', './data/cartas-usuario.json',
-  './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png',
+  './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon.svg',
 ];
 
 self.addEventListener('install', (e) => {

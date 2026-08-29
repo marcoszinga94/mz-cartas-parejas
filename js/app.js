@@ -315,6 +315,8 @@ function repartirCarta() {
 function iniciarPartida() {
   limpiarTransicion();
   enRondaExtra = false;
+  const banner = document.getElementById('banner-extra');
+  if (banner) banner.classList.add('oculto');
   estado.puntos1 = 0;
   estado.puntos2 = 0;
   estado.turno = 1;
@@ -398,16 +400,14 @@ function mostrarFin() {
 
 function rondaExtra() {
   estado.enPartida = true;
-  const banner = document.getElementById('banner-extra');
-  if (banner) banner.classList.remove('oculto');
   iniciarPartida();
   enRondaExtra = true;
+  const banner = document.getElementById('banner-extra');
+  if (banner) banner.classList.remove('oculto');
 }
 
 function reiniciar() {
   enRondaExtra = false;
-  const banner = document.getElementById('banner-extra');
-  if (banner) banner.classList.add('oculto');
   estado.enPartida = true;
   iniciarPartida();
 }
