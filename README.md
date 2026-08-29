@@ -28,7 +28,7 @@ El modo online permite jugar entre dos teléfonos (en casa o a distancia) con un
 1. En la pantalla de inicio tocá **Modo online**.
 2. **Crear código**: tocá el botón y aparece la sala de espera con un código de 6 dígitos. Compartilo con tu pareja.
 3. **Unirme**: la otra persona entra al modo online, escribe el código y toca **Unirme**.
-4. Cuando los dos están conectados, quien creó la sala toca **Comenzar** y arranca la partida sincronizada: las cartas, el turno y el puntaje aparecen iguales en ambos teléfonos. El jugador que está fuera de turno ve los botones deshabilitados.
+4. Cuando los dos están conectados, la partida **arranca sola** en ambos teléfonos: las cartas, el turno y el puntaje aparecen iguales en los dos. El jugador que está fuera de turno ve los botones deshabilitados.
 
 Si salís de la sala, podés reanudarla con el botón **Reanudar última sesión** (aparece cuando hay una sesión guardada).
 
@@ -37,11 +37,11 @@ Si salís de la sala, podés reanudarla con el botón **Reanudar última sesión
 - En la sala o durante la partida tocá **💬** para abrir el chat.
 - Los **mensajes de texto** se envían en vivo: llegan al otro teléfono en unos segundos.
 - Las **fotos** (📷) se comprimen automáticamente (máximo ~1 MB) y se envían **en vivo**; además, se guardan **en el propio teléfono** (localStorage), porque no vuelven a viajar por el chat después de recibidas.
-- Las fotos quedan en el historial local de cada dispositivo.
+- Las fotos viajan **en vivo y se eliminan del servidor al ser entregadas**; quedan guardadas solo en cada teléfono.
 
 ### Dónde se guardan los chats
 
-Los mensajes y las sesiones se guardan en una base de datos **Neon (Postgres serverless)** en la nube, identificados por pareja. Se mantienen **hasta que se borran a mano**: en **Mis chats** se listan las conversaciones y el botón **🗑** borra para siempre esa pareja y todos sus mensajes (en el servidor y en el teléfono).
+Los mensajes y las sesiones se guardan en una base de datos **Neon (Postgres serverless)** en la nube, identificados por pareja. Las **fotos** no se guardan en la nube: viajan en vivo y se eliminan del servidor al ser entregadas; quedan guardadas solo en cada teléfono. Se mantienen **hasta que se borran a mano**: en **Mis chats** se listan las conversaciones y el botón **🗑** borra para siempre esa pareja y todos sus mensajes (en el servidor y en el teléfono).
 
 ### Configuración para el desarrollador / cliente
 

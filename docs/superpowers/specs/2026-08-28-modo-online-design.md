@@ -12,7 +12,7 @@ Extiende "Cartas Parejas" con un modo online para parejas que no están en el mi
 
 - **Arquitectura:** Frontend estático (Vercel) + Vercel Functions (API serverless) + Neon (Postgres). El tiempo real se implementa con **polling corto (~1.5s)** contra la API, sin servicios externos de WebSocket.
 - **Conversación continua por pareja:** una sola conversación por pareja; el código solo sirve para conectarse en vivo. El historial persiste hasta borrado manual.
-- **Fotos:** se envían solo en vivo (base64 por el canal) y se guardan en `localStorage` del dispositivo receptor. Neon guarda `tipo='foto'` + referencia, sin el peso.
+- **Fotos:** se envían solo en vivo (base64 por el canal) y se guardan en `localStorage` del dispositivo receptor. Neon guarda `tipo='foto'`; el payload viaja en la fila solo entre el envío y la primera entrega en vivo, y se **elimina del servidor al ser entregado**. Las fotos quedan guardadas solo en cada teléfono.
 - **Sala abierta:** al desconectarse, la sala queda abierta y se reanuda con el mismo código.
 - **Juego:** misma carta sincronizada, turno alternado, cronómetro por carta igual al modo local. Solo el jugador en turno puede resolver.
 - **Categorías:** todas las categorías disponibles (incluye Hot).
@@ -50,7 +50,7 @@ CartasParejas/
 | pareja_id | int FK → parejas | |
 | autor_id | text | dispositivo_id del emisor |
 | tipo | text | 'texto' \| 'foto' |
-| contenido | text | texto del mensaje, o id/referencia si es foto |
+| contenido | text | texto del mensaje; para fotos, el payload viaja en vivo y se vacía al entregarse |
 | creada_at | timestamptz default now() | |
 
 ### `sesiones`
@@ -78,10 +78,10 @@ Todas reciben/responden JSON. Errores con `{ error: "mensaje" }` + status HTTP a
 - **`POST /api/sesion-join`** `{ codigo, dispositivo_id, nombre }` → `{ sesion_id, pareja_id }`. Une al jugador 2; si la sala está en 'jugando', se reanuda el estado.
 - **`GET /api/sesion-estado?sesion_id=`** → `{ estado, turno, categoria, carta_texto, puntos1, puntos2, jugadores: {1: nombre, 2: nombre} }`.
 - **`POST /api/sesion-turno`** `{ sesion_id, dispositivo_id, hecho }` → nuevo estado. Solo resuelve si es el turno de `dispositivo_id`. Si `hecho` → suma 1 punto al jugador en turno; cambia `carta_texto` (nueva carta aleatoria de `categoria`) y alterna `turno`. Si la categoría activa no está definida al comenzar, el creador la elige al crear la sala y se pasa por el estado.
-- **`POST /api/mensajes`** `{ pareja_id, autor_id, tipo, contenido }` → `{ id }`.
-- **`GET /api/mensajes?pareja_id=&after=`** → `{ mensajes: [...] }` con `id > after`.
+- **`POST /api/mensajes`** `{ pareja_id, autor_id, tipo, contenido }` → `{ id }`. Para `tipo='foto'`, `contenido` debe ser un data URL `data:image/` de máximo ~1MB base64 (si no, 400).
+- **`GET /api/mensajes?pareja_id=&after=&dispositivo_id=`** → `{ mensajes: [...] }` con `id > after`. Requiere un `dispositivo_id` que sea miembro de la pareja (creador o jugador 2 de alguna sesión); si no, 403. Al entregar fotos a un dispositivo que no es el autor, el servidor **vacía su `contenido`** (la foto solo vive en Neon entre el envío y su primera entrega).
 - **`GET /api/chats?dispositivo_id=`** → `{ chats: [{ pareja_id, ultimo_mensaje, actualizado_at }] }` (para la lista "Mis chats").
-- **`DELETE /api/chats/:pareja_id`** → `{ ok: true }` (borra conversación y sus mensajes).
+- **`DELETE /api/chats/:pareja_id?dispositivo_id=`** → `{ ok: true }` (borra conversación y sus mensajes). Requiere `dispositivo_id` miembro de la pareja; si no, 403.
 
 ## Cliente online (`js/online.js`)
 
@@ -105,7 +105,7 @@ Módulo ES que importa lo necesario de `app.js` (o expone hooks). Responsabilida
 
 1. **Inicio:** nuevo botón "Modo online".
 2. **Modo online (hub):** opciones "Crear código", "Unirme con código", "Reanudar última sesión" (si existe), y acceso "Mis chats".
-3. **Sala de espera:** código grande para compartir, lista de jugadores (creador esperando al 2), botón "Comenzar" (solo creador) habilitado cuando el 2 se unió.
+3. **Sala de espera:** código grande para compartir, lista de jugadores (creador esperando al 2). Cuando el segundo jugador se une, la partida **arranca sola** en ambos teléfonos (no hay botón "Comenzar").
 4. **Partida online:** misma UI de partida local (marcador, anillo, carta, botones) + banner de conexión + botón flotante de chat. Botones deshabilitados fuera de turno.
 5. **Chat:** burbujas, input texto, botón foto, timestamps. Accesible desde la sala y desde "Mis chats".
 6. **Mis chats:** lista de conversaciones (pareja, último mensaje, fecha). Al abrir una, muestra el historial completo (local + Neon). Botón borrar.
@@ -120,7 +120,7 @@ Módulo ES que importa lo necesario de `app.js` (o expone hooks). Responsabilida
 
 - Igual que el modo local: móvil-first, touch, sin librerías.
 - El polling de mensajes trae solo `id > after` (payload mínimo).
-- Las fotos se escalan/comprimen a base64 antes de enviar (máx ~1MB) para no saturar el canal.
+- Las fotos se escalan/comprimen a base64 antes de enviar (máx ~1MB) para no saturar el canal. El servidor las valida y las vacía tras la entrega: una foto vive en Neon solo entre el envío y su primera entrega en vivo.
 
 ## Fuera de alcance
 

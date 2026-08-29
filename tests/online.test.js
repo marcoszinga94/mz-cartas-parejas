@@ -17,6 +17,15 @@ test('fusionarMensajes sin duplicados y ordenado', () => {
   assert.equal(res.length, 3);
 });
 
+test('fusionarMensajes conserva el contenido local de una foto purgada', () => {
+  const local = [{ id: 5, tipo: 'foto', contenido: 'data:image/jpeg;base64,AAA' }];
+  const remotos = [{ id: 5, tipo: 'foto', contenido: '' }];
+  const res = fusionarMensajes(local, remotos);
+  assert.equal(res[0].contenido, 'data:image/jpeg;base64,AAA');
+  const remotoConPeso = fusionarMensajes([{ id: 5, tipo: 'foto', contenido: '' }], [{ id: 5, tipo: 'foto', contenido: 'data:image/jpeg;base64,BBB' }]);
+  assert.equal(remotoConPeso[0].contenido, 'data:image/jpeg;base64,BBB');
+});
+
 test('formatearHora', () => {
   assert.match(formatearHora('2026-08-28T14:32:00Z'), /^\d{2}:\d{2}$/);
 });

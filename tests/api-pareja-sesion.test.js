@@ -11,21 +11,23 @@ function fakeRes() {
   return res;
 }
 
-function fakeDb(rowsByQuery) {
-  return async (strings, ...params) => {
+function fakeDb({ selectCodigo = [], updateResult = [{ id: 1 }] } = {}) {
+  return async (strings) => {
     const q = strings.join('?');
-    if (rowsByQuery[q]) return rowsByQuery[q];
-    if (q.includes('INSERT INTO parejas')) return [];
+    if (q.includes('FROM sesiones WHERE codigo')) return selectCodigo;
+    if (q.includes('SELECT id, codigo FROM sesiones')) return [];
+    if (q.includes('INSERT INTO parejas')) return [{ id: 1 }];
     if (q.includes('INSERT INTO sesiones')) return [{ id: 1 }];
-    if (q.includes('UPDATE sesiones')) return [];
+    if (q.includes('UPDATE sesiones')) return updateResult;
     throw new Error(`Query no contemplada en el fake: ${q.slice(0, 60)}`);
   };
 }
 
 const db = fakeDb({
-  'INSERT INTO parejas (creada_at) VALUES (now()) RETURNING id': [{ id: 1 }],
-  'SELECT id, codigo FROM sesiones WHERE pareja_id = ? AND estado != \'jugando\' AND creador_id = ? ORDER BY id DESC LIMIT 1': [],
-  'SELECT id, pareja_id, estado, turno, puntos1, puntos2, carta_categoria, carta_texto, nombre1, nombre2, categorias FROM sesiones WHERE codigo = ?': [],
+  selectCodigo: [{
+    id: 1, pareja_id: 1, estado: 'espera', turno: 1, puntos1: 0, puntos2: 0,
+    carta_categoria: 'Hot', carta_texto: 'carta', nombre1: 'A', nombre2: 'B', categorias: '["Hot"]', jugador2_id: 'd2',
+  }],
 });
 
 test('crea pareja', async () => {
@@ -45,7 +47,7 @@ test('crea sesion con codigo', async () => {
 
 test('join con codigo inexistente da 404', async () => {
   const res = fakeRes();
-  await handleJoin({ body: { codigo: '000000', dispositivo_id: 'd2', nombre: 'B' } }, res, db);
+  await handleJoin({ body: { codigo: '000000', dispositivo_id: 'd2', nombre: 'B' } }, res, fakeDb());
   assert.equal(res.statusCode, 404);
 });
 
@@ -53,4 +55,32 @@ test('sesion sin body valido da 400', async () => {
   const res = fakeRes();
   await handleSesion({ body: { pareja_id: 1 } }, res, db);
   assert.equal(res.statusCode, 400);
+});
+
+test('mismo dispositivo se re-une con otro nombre (200)', async () => {
+  const res = fakeRes();
+  await handleJoin({ body: { codigo: '123456', dispositivo_id: 'd2', nombre: 'B2' } }, res, db);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.jugadores[2], 'B2');
+});
+
+test('otro dispositivo como segundo jugador da 409', async () => {
+  const res = fakeRes();
+  await handleJoin({ body: { codigo: '123456', dispositivo_id: 'd3', nombre: 'C' } }, res, db);
+  assert.equal(res.statusCode, 409);
+  assert.equal(res.body.error, 'La sala ya tiene un segundo jugador');
+});
+
+test('join atomico: si el slot lo tomo otro dispositivo en paralelo, 409', async () => {
+  const res = fakeRes();
+  const dbRaza = fakeDb({
+    selectCodigo: [{
+      id: 1, pareja_id: 1, estado: 'espera', turno: 1, puntos1: 0, puntos2: 0,
+      carta_categoria: 'Hot', carta_texto: 'carta', nombre1: 'A', nombre2: null, categorias: '["Hot"]', jugador2_id: null,
+    }],
+    updateResult: [],
+  });
+  await handleJoin({ body: { codigo: '123456', dispositivo_id: 'd3', nombre: 'C' } }, res, dbRaza);
+  assert.equal(res.statusCode, 409);
+  assert.equal(res.body.error, 'La sala ya tiene un segundo jugador');
 });

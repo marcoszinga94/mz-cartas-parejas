@@ -17,7 +17,8 @@ export async function handle(req, res, db = getSql()) {
       RETURNING id`;
     return res.status(200).json({ codigo, sesion_id: rows[0].id });
   } catch (e) {
-    return res.status(500).json({ error: e.message });
+    console.error(e.message);
+    return res.status(500).json({ error: 'Error interno' });
   }
 }
 

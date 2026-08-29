@@ -1,4 +1,5 @@
 import { getSql } from './_db.js';
+import { esMiembro } from './_miembro.js';
 
 export async function handle(req, res, db = getSql()) {
   if (req.method === 'GET') {
@@ -12,17 +13,22 @@ export async function handle(req, res, db = getSql()) {
         ORDER BY s.pareja_id, m.creada_at DESC`;
       return res.status(200).json({ chats });
     } catch (e) {
-      return res.status(500).json({ error: e.message });
+      console.error(e.message);
+      return res.status(500).json({ error: 'Error interno' });
     }
   }
   if (req.method === 'DELETE') {
     const pareja_id = Number(req.query?.pareja_id);
+    const dispositivo_id = req.query?.dispositivo_id;
     if (!pareja_id) return res.status(400).json({ error: 'Falta pareja_id' });
+    if (!dispositivo_id) return res.status(400).json({ error: 'Falta dispositivo_id' });
     try {
+      if (!(await esMiembro(db, pareja_id, dispositivo_id))) return res.status(403).json({ error: 'No autorizado' });
       await db`DELETE FROM parejas WHERE id = ${pareja_id}`;
       return res.status(200).json({ ok: true });
     } catch (e) {
-      return res.status(500).json({ error: e.message });
+      console.error(e.message);
+      return res.status(500).json({ error: 'Error interno' });
     }
   }
   return res.status(405).json({ error: 'Método no permitido' });

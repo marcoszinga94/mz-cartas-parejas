@@ -7,7 +7,11 @@ export function normalizarCodigo(codigo) {
 
 export function fusionarMensajes(local, remotos) {
   const mapa = new Map();
-  for (const m of [...local, ...remotos]) mapa.set(m.id, m);
+  for (const m of [...local, ...remotos]) {
+    const prev = mapa.get(m.id);
+    if (prev && prev.tipo === 'foto' && prev.contenido && !m.contenido) continue;
+    mapa.set(m.id, m);
+  }
   return [...mapa.values()].sort((a, b) => a.id - b.id);
 }
 
@@ -25,7 +29,7 @@ export function estadoCambio(prev, next) {
 if (typeof window !== 'undefined') {
   const TIEMPO_CARTA = 45;
   const CIRCUNFERENCIA_ANILLO = 100.53;
-  const CATEGORIAS_DEFAULT = ['Preguntas', 'Retos', 'Picante', 'Romantico', 'Loco', 'Hot'];
+  const CATEGORIAS_DEFAULT = ['Preguntas', 'Retos', 'Picante', 'Romantico', 'Loco', 'Hot', 'Sexting'];
 
   let sesionId = null;
   let parejaId = null;
@@ -38,6 +42,7 @@ if (typeof window !== 'undefined') {
   let ultimaCartaOnline = null;
   let chatOrigen = 'online';
   let avisoTimer = null;
+  let pollando = false;
 
   function lsGet(k) {
     try { return typeof localStorage !== 'undefined' ? localStorage.getItem(k) : null; } catch { return null; }
@@ -241,7 +246,6 @@ if (typeof window !== 'undefined') {
   function renderSala(estado) {
     const lista = document.getElementById('sala-jugadores');
     const estadoEl = document.getElementById('sala-estado');
-    const btnComenzar = document.getElementById('btn-comenzar-online');
     const j1 = estado.jugadores?.[1] || nombreLocal(1);
     const j2 = estado.jugadores?.[2] || null;
     if (lista) {
@@ -257,17 +261,11 @@ if (typeof window !== 'undefined') {
       }
     }
     if (estadoEl) estadoEl.textContent = j2 ? '¡Los dos están conectados!' : 'Esperando al otro jugador…';
-    if (btnComenzar) {
-      const puede = soyCreador && Boolean(j2);
-      btnComenzar.classList.toggle('oculto', !puede);
-      btnComenzar.disabled = !puede;
-    }
   }
 
   function decidirPantallaOnline(estado) {
     if (pantallaActual === 'chat') return;
-    const enJuego = estado.estado === 'jugando' || Boolean(estado.jugadores?.[2]);
-    if (enJuego) {
+    if (estado.jugadores?.[2]) {
       if (pantallaActual !== 'online-partida') {
         renderOnlineEstado(estado);
         irA('online-partida');
@@ -285,11 +283,6 @@ if (typeof window !== 'undefined') {
     if (lista) lista.innerHTML = '';
     const estadoEl = document.getElementById('sala-estado');
     if (estadoEl) estadoEl.textContent = 'Esperando al otro jugador…';
-    const btn = document.getElementById('btn-comenzar-online');
-    if (btn) {
-      btn.classList.add('oculto');
-      btn.disabled = true;
-    }
     irA('sala');
   }
 
@@ -422,29 +415,35 @@ if (typeof window !== 'undefined') {
   }
 
   async function pollTick() {
+    if (pollando) return;
     if (document.hidden || !sesionId) return;
-    const r = await fetch(`/api/sesion-estado?sesion_id=${sesionId}`).catch(() => null);
-    if (!r) {
-      setBanner('Desconectado…', true);
-      return;
-    }
+    pollando = true;
     try {
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.error || 'Estado no disponible');
-      const previo = estadoOnline;
-      estadoOnline = d;
-      setBanner('Conectado', false);
-      decidirPantallaOnline(d);
-      if (estadoCambio(previo, d)) renderOnlineEstado(d);
-    } catch {
-      setBanner('Desconectado…', true);
+      const r = await fetch(`/api/sesion-estado?sesion_id=${sesionId}`).catch(() => null);
+      if (!r) {
+        setBanner('Desconectado…', true);
+        return;
+      }
+      try {
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'Estado no disponible');
+        const previo = estadoOnline;
+        estadoOnline = d;
+        setBanner('Conectado', false);
+        decidirPantallaOnline(d);
+        if (estadoCambio(previo, d)) renderOnlineEstado(d);
+      } catch {
+        setBanner('Desconectado…', true);
+      }
+      if (parejaId) refrescarMensajes();
+    } finally {
+      pollando = false;
     }
-    if (parejaId) refrescarMensajes();
   }
 
   async function refrescarMensajes() {
     if (!parejaId) return;
-    const r = await fetch(`/api/mensajes?pareja_id=${parejaId}&after=${ultimoMensajeId}`).catch(() => null);
+    const r = await fetch(`/api/mensajes?pareja_id=${parejaId}&after=${ultimoMensajeId}&dispositivo_id=${dispositivoId()}`).catch(() => null);
     if (!r || !r.ok) return;
     const d = await r.json().catch(() => null);
     if (!d?.mensajes || d.mensajes.length === 0) return;
@@ -456,7 +455,8 @@ if (typeof window !== 'undefined') {
 
   async function resolverOnline(hecho) {
     if (!miTurno(estadoOnline)) return;
-    actualizarBotonesTurno();
+    const ids = ['btn-online-hecho', 'btn-online-no-hecho'];
+    ids.forEach(id => btnOcupado(id, true, 'Enviando…'));
     try {
       const r = await fetch('/api/sesion-turno', {
         method: 'POST',
@@ -470,6 +470,8 @@ if (typeof window !== 'undefined') {
       setBanner('Conectado', false);
     } catch (e) {
       setBanner(e.message === 'No es tu turno' ? 'No es tu turno' : 'Error al enviar', true);
+    } finally {
+      ids.forEach(id => btnOcupado(id, false));
       actualizarBotonesTurno();
     }
   }
@@ -491,11 +493,18 @@ if (typeof window !== 'undefined') {
       const burbuja = document.createElement('div');
       burbuja.className = `chat-burbuja ${m.autor_id === did ? 'propia' : 'ajena'}`;
       if (m.tipo === 'foto') {
-        const img = document.createElement('img');
-        img.src = m.contenido;
-        img.alt = 'Foto';
-        img.loading = 'lazy';
-        burbuja.appendChild(img);
+        if (m.contenido && m.contenido.startsWith('data:image/')) {
+          const img = document.createElement('img');
+          img.src = m.contenido;
+          img.alt = 'Foto';
+          img.loading = 'lazy';
+          burbuja.appendChild(img);
+        } else {
+          const span = document.createElement('span');
+          span.className = 'foto-placeholder';
+          span.textContent = '📷 Foto';
+          burbuja.appendChild(span);
+        }
       } else {
         const span = document.createElement('span');
         span.textContent = m.contenido;
@@ -564,7 +573,6 @@ if (typeof window !== 'undefined') {
     const local = leerChatLocal();
     local.push({ id: d.id, autor_id: dispositivoId(), tipo, contenido, creada_at: new Date().toISOString() });
     guardarChatLocal(local);
-    ultimoMensajeId = Math.max(ultimoMensajeId, Number(d.id) || 0);
     renderChat();
   }
 
@@ -674,7 +682,7 @@ if (typeof window !== 'undefined') {
   async function borrarChat(pid) {
     if (!window.confirm('¿Borrar esta conversación y todos sus mensajes?')) return;
     try {
-      const r = await fetch(`/api/chats?pareja_id=${pid}`, { method: 'DELETE' });
+      const r = await fetch(`/api/chats?pareja_id=${pid}&dispositivo_id=${dispositivoId()}`, { method: 'DELETE' });
       if (!r.ok) {
         const d = await r.json().catch(() => ({}));
         throw new Error(d.error || 'No se pudo borrar');
@@ -730,11 +738,6 @@ if (typeof window !== 'undefined') {
     irA('inicio');
   });
 
-  escuchar('btn-comenzar-online', () => {
-    if (!estadoOnline) return;
-    renderOnlineEstado(estadoOnline);
-    irA('online-partida');
-  });
   escuchar('btn-chat-sala', abrirChat);
   escuchar('btn-salir-sala', () => {
     detenerPolling();

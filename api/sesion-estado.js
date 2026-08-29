@@ -13,7 +13,8 @@ export async function handle(req, res, db = getSql()) {
       jugadores: { 1: s.nombre1, 2: s.nombre2 }, categorias: JSON.parse(s.categorias || '[]'),
     });
   } catch (e) {
-    return res.status(500).json({ error: e.message });
+    console.error(e.message);
+    return res.status(500).json({ error: 'Error interno' });
   }
 }
 
