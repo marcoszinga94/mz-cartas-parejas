@@ -27,3 +27,15 @@ self.addEventListener('fetch', (e) => {
     }).catch(() => caches.match(e.request).then((r) => r || (e.request.mode === 'navigate' ? caches.match('./index.html') : undefined)))
   );
 });
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsList) => {
+      for (const client of clientsList) {
+        if ('focus' in client) return client.focus();
+      }
+      return clients.openWindow('./');
+    })
+  );
+});

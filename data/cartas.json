@@ -400,6 +400,26 @@
     { "id": 397, "categoria": "Sexting", "texto": "Dile qué harías si él te dijera que está pensando en ti desnudo." },
     { "id": 398, "categoria": "Sexting", "texto": "Cuéntale qué harías con una hora, un espejo y él." },
     { "id": 399, "categoria": "Sexting", "texto": "Describe cómo terminaría el mensaje que no te atreves a enviarle." },
-    { "id": 400, "categoria": "Sexting", "texto": "Escribele algo que le haga sonrojarse y dile que es para que lo piense." }
+    { "id": 400, "categoria": "Sexting", "texto": "Escribele algo que le haga sonrojarse y dile que es para que lo piense." },
+    { "id": 401, "categoria": "Hot", "texto": "Enviale una foto por el chat de tus labios con un gesto sugerente." },
+    { "id": 402, "categoria": "Hot", "texto": "Sácate una foto con tu lencería favorita y envíala por el chat." },
+    { "id": 403, "categoria": "Hot", "texto": "Enviale una foto de una prenda tuya y dile dónde le gustaría quitártela." },
+    { "id": 404, "categoria": "Hot", "texto": "Mándale una foto de tu cuello y una instrucción de qué le harías." },
+    { "id": 405, "categoria": "Hot", "texto": "Enviale una foto a contraluz que deje volar la imaginación." },
+    { "id": 406, "categoria": "Hot", "texto": "Elija una prenda suya, envíele una foto con ella y un mensaje provocador." },
+    { "id": 407, "categoria": "Hot", "texto": "Sácate una foto en la ducha o con el pelo mojado y envíala." },
+    { "id": 408, "categoria": "Hot", "texto": "Enviale una foto de una parte de tu cuerpo que nunca le hayas mostrado así." },
+    { "id": 409, "categoria": "Hot", "texto": "Mándale una foto con una sábana apenas cubriéndote y el comentario más picante que se te ocurra." },
+    { "id": 410, "categoria": "Hot", "texto": "Enviale una foto de tu espalda y pídele que te diga qué le haría." },
+    { "id": 411, "categoria": "Hot", "texto": "Sácate una foto con una de sus camisas puestas y dile que es suya cuando quiera." },
+    { "id": 412, "categoria": "Hot", "texto": "Enviale una foto insinuante y un mensaje que empiece con «Imaginá que...»." },
+    { "id": 413, "categoria": "Hot", "texto": "Mándale una foto de tu lencería elegida para esta noche y pídèle su opinión." },
+    { "id": 414, "categoria": "Hot", "texto": "Enviale una foto de tus hombros o clavícula y describíle cómo se la besarías." },
+    { "id": 415, "categoria": "Hot", "texto": "Sácate una foto con una venda o corbata cerca y un mensaje que invite a usarla." },
+    { "id": 416, "categoria": "Hot", "texto": "Enviale una foto de tus piernas y pídele que elija por dónde empezar." },
+    { "id": 417, "categoria": "Hot", "texto": "Mándale una foto de una prenda interior tuya y un «¿qué opinás?» con intención." },
+    { "id": 418, "categoria": "Hot", "texto": "Enviale una foto a medio vestir y un mensaje que lo deje claro que la noche es suya." },
+    { "id": 419, "categoria": "Hot", "texto": "Sácate una foto con el espejo y pidèle que elija qué sigue." },
+    { "id": 420, "categoria": "Hot", "texto": "Enviale una foto de tu sonrisa con un texto que lo haga pensar en otras cosas." }
   ]
 }

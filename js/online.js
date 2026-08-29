@@ -477,6 +477,11 @@ if (typeof window !== 'undefined') {
     if (!r || !r.ok) return;
     const d = await r.json().catch(() => null);
     if (!d?.mensajes || d.mensajes.length === 0) return;
+    const did = dispositivoId();
+    const nuevos = d.mensajes.filter(m => Number(m.id) > ultimoMensajeId);
+    for (const m of nuevos) {
+      if (m.autor_id !== did) notificarMensaje(estadoOnline?.jugadores?.[2] || 'Tu pareja', m.contenido);
+    }
     const fusion = fusionarMensajes(leerChatLocal(), d.mensajes);
     guardarChatLocal(fusion);
     ultimoMensajeId = fusion.reduce((m, x) => Math.max(m, Number(x.id) || 0), ultimoMensajeId);
@@ -730,8 +735,27 @@ if (typeof window !== 'undefined') {
     }
   }
 
+  function solicitarPermisoNotificaciones() {
+    if (typeof Notification === 'undefined' || Notification.permission !== 'default') return;
+    Notification.requestPermission().catch(() => {});
+  }
+
+  function notificarMensaje(autor, texto) {
+    if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+    const cuerpo = texto && texto.startsWith('data:image/') ? '📷 Te envió una foto' : (texto || 'Nuevo mensaje');
+    navigator.serviceWorker?.ready.then((reg) => {
+      reg.showNotification(`${autor} · Cartas Parejas`, {
+        body: cuerpo,
+        icon: './icons/icon-192.png',
+        badge: './icons/icon-192.png',
+        tag: 'chat-cartas-parejas',
+      });
+    }).catch(() => {});
+  }
+
   function onlineIniciar() {
     dispositivoId();
+    solicitarPermisoNotificaciones();
     refrescarHub();
   }
 

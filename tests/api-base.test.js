@@ -11,10 +11,10 @@ test('generarCodigo devuelve 6 digitos', () => {
   }
 });
 
-test('cargarCartas lee las 7 categorias y 400 cartas', () => {
+test('cargarCartas lee las 7 categorias y 420 cartas', () => {
   const d = cargarCartas();
   assert.ok(d.categorias.includes('Hot'));
-  assert.equal(d.cartas.length, 400);
+  assert.equal(d.cartas.length, 420);
 });
 
 test('seleccionarCarta respeta categorias y evita repetir la anterior', () => {
