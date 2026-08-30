@@ -208,6 +208,8 @@ let timerId = null;
 let transicionTimer = null;
 let resolviendo = false;
 let enRondaExtra = false;
+let rondaHecho1 = null;
+let rondaHecho2 = null;
 
 const COLORES_CONFETI = ['var(--frambuesa)', 'var(--rosa)', 'var(--lavanda)', 'var(--dorado)'];
 
@@ -341,6 +343,8 @@ function construirMazo() {
 function iniciarPartida(resetScores = true) {
   limpiarTransicion();
   enRondaExtra = false;
+  rondaHecho1 = null;
+  rondaHecho2 = null;
   const banner = document.getElementById('banner-extra');
   if (banner) banner.classList.add('oculto');
   if (resetScores) {
@@ -368,9 +372,19 @@ function resolverCarta(hecho, dir = hecho ? 1 : -1, desdeSwipe = false) {
     flotarCorazon(estado.turno);
     marcarPop(estado.turno === 1 ? 'marcador-p1' : 'marcador-p2');
   }
-  if (enRondaExtra && !hecho) {
-    finalizarPartida();
-    return;
+  if (enRondaExtra) {
+    if (estado.turno === 1) rondaHecho1 = hecho;
+    else rondaHecho2 = hecho;
+    if (rondaHecho1 !== null && rondaHecho2 !== null) {
+      const gana1 = rondaHecho1 && !rondaHecho2;
+      const gana2 = !rondaHecho1 && rondaHecho2;
+      if (gana1 || gana2) {
+        finalizarPartida();
+        return;
+      }
+      rondaHecho1 = null;
+      rondaHecho2 = null;
+    }
   }
   sonidos.tocar('flip');
   if (!desdeSwipe) animarSalida(dir);
@@ -436,6 +450,8 @@ function mostrarFin() {
 
 function rondaExtra() {
   estado.enPartida = true;
+  rondaHecho1 = null;
+  rondaHecho2 = null;
   iniciarPartida();
   enRondaExtra = true;
   const banner = document.getElementById('banner-extra');
