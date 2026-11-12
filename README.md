@@ -1,153 +1,109 @@
 # Cartas Parejas
 
-**Cartas Parejas** es un juego de mesa para dos personas: la noche de pareja. Aparecen cartas con preguntas, retos y momentos para jugar en pareja, con categorías, cronómetro y puntaje.
+> Juego de cartas para parejas con preguntas, retos y categorías, para jugar en un solo teléfono o entre dos dispositivos.
 
-Es una página web estática: son archivos simples (HTML, CSS y JavaScript). No necesita instalar nada para usarla, y funciona sin conexión a internet después de la primera carga.
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
+![Neon](https://img.shields.io/badge/Neon-00E599?logo=postgresql&logoColor=black)
+![PWA](https://img.shields.io/badge/PWA-5A0FC8?logo=pwa&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white)
 
----
+## Características
 
-## Cómo subirla a internet
+**Modo local (offline)**
 
-La aplicación es una carpeta con archivos comunes. No hay que compilar ni instalar nada: se sube tal cual.
+- **Mazo base:** 420 cartas repartidas en 7 categorías (Preguntas, Retos, Picante, Romantico, Loco, Hot y Sexting).
+- **Configuración:** nombres de los jugadores, categorías, tiempo por carta (15, 30, 45 o 60 segundos) y rondas (0 = infinitas).
+- **Partida por turnos:** dos jugadores se alternan en el mismo dispositivo; cada carta se marca como hecha o no hecha y suma un punto.
+- **Cierre:** pantalla final con marcador y confeti; si hay empate se habilita una ronda extra en la que gana quien completa la carta y el otro no.
+- **Mis cartas:** alta y baja de cartas propias, además de exportación e importación en JSON; se suman al mazo local.
+- **Persistencia:** partida en curso, cartas propias y preferencia de sonido en `localStorage`.
+- **Audio:** efectos generados con WebAudio y opción de silenciar.
+- **PWA:** service worker que cachea HTML, CSS, JS, datos e iconos para jugar sin conexión después de la primera carga.
 
-1. Comprimir la carpeta del proyecto en un `.zip`.
-2. Entrar a un servicio de hosting estático (por ejemplo **Netlify Drop**, **Vercel**, **GitHub Pages** o el que prefieras).
-3. Arrastrar la carpeta (o el `.zip`) a la página y soltar.
-4. Listo: el servicio te da una dirección web (por ejemplo `https://tuapp.netlify.app`).
+**Modo online**
 
-No hace falta servidor ni base de datos para jugar en el mismo teléfono: las cartas y las partidas se guardan en el propio navegador. El **modo online** (jugar entre dos dispositivos con chat) sí necesita internet y una API + base de datos (ver la sección "Modo online" más abajo).
+- **Salas con código:** se crea una sala de 6 dígitos o se ingresa el código para unirse; la partida arranca cuando están los dos jugadores.
+- **Sincronización:** el estado (turno, carta, puntaje y categorías) se consulta cada 1,5 segundos y el servidor valida de quién es el turno.
+- **Chat:** mensajes de texto y fotos comprimidas en el cliente antes de enviarse.
+- **Fotos efímeras:** se eliminan del servidor al entregarse y quedan guardadas solo en el teléfono.
+- **Historial:** los chats se listan por pareja y se pueden borrar por completo, incluidos los mensajes del servidor.
+- **Reanudar:** la última sesión se guarda en el dispositivo para volver a la sala.
 
----
+## Stack
 
-## Modo online
+| Capa | Tecnología |
+| --- | --- |
+| Frontend | HTML, CSS y JavaScript vanilla con módulos ES |
+| API | Vercel Functions en `api/` |
+| Base de datos | Neon (Postgres serverless) |
+| PWA | `manifest.webmanifest` y service worker |
+| Tests | Runner nativo de Node (`node --test`) |
 
-El modo online permite jugar entre dos teléfonos (en casa o a distancia) con un **código de 6 dígitos**, con chat y partida sincronizados en vivo.
+## Estructura del proyecto
 
-### Crear o unirse a una partida
-
-1. En la pantalla de inicio tocá **Modo online**.
-2. **Crear código**: tocá el botón y aparece la sala de espera con un código de 6 dígitos. Compartilo con tu pareja.
-3. **Unirme**: la otra persona entra al modo online, escribe el código y toca **Unirme**.
-4. Cuando los dos están conectados, la partida **arranca sola** en ambos teléfonos: las cartas, el turno y el puntaje aparecen iguales en los dos. El jugador que está fuera de turno ve los botones deshabilitados.
-
-Si salís de la sala, podés reanudarla con el botón **Reanudar última sesión** (aparece cuando hay una sesión guardada).
-
-### El chat y las fotos
-
-- En la sala o durante la partida tocá **💬** para abrir el chat.
-- Los **mensajes de texto** se envían en vivo: llegan al otro teléfono en unos segundos.
-- Las **fotos** (📷) se comprimen automáticamente (máximo ~1 MB) y se envían **en vivo**; además, se guardan **en el propio teléfono** (localStorage), porque no vuelven a viajar por el chat después de recibidas.
-- Las fotos viajan **en vivo y se eliminan del servidor al ser entregadas**; quedan guardadas solo en cada teléfono.
-
-### Dónde se guardan los chats
-
-Los mensajes y las sesiones se guardan en una base de datos **Neon (Postgres serverless)** en la nube, identificados por pareja. Las **fotos** no se guardan en la nube: viajan en vivo y se eliminan del servidor al ser entregadas; quedan guardadas solo en cada teléfono. Se mantienen **hasta que se borran a mano**: en **Mis chats** se listan las conversaciones y el botón **🗑** borra para siempre esa pareja y todos sus mensajes (en el servidor y en el teléfono).
-
-### Configuración para el desarrollador / cliente
-
-El modo online necesita una API serverless y una base de datos. Los pasos son:
-
-1. Crear una base de datos en **Neon** y copiar su *connection string* (el `DATABASE_URL`).
-2. Crear el esquema de tablas en esa base, corriendo desde la carpeta del proyecto:
-
-   ```bash
-   DATABASE_URL="postgresql://..." node scripts/migrate.mjs
-   ```
-
-   Debe mostrar `Esquema aplicado correctamente`.
-
-3. Configurar la variable de entorno en el hosting (Vercel) con el mismo valor:
-
-   ```bash
-   vercel env add DATABASE_URL
-   ```
-
-   Pegar la *connection string* y seleccionar **Production** (y **Preview** si se quiere).
-
-4. Subir el proyecto a Vercel como **Vercel Functions** (las carpetas `api/` se exponen como `/api/*`). El `DATABASE_URL` se lee del entorno: **nunca** debe ir en el código ni en el repositorio.
-
-Sin esa variable configurada, el modo online no puede conectarse; el resto del juego (modo local) sigue funcionando normalmente.
-
----
-
-## Cómo editar las cartas (archivo `data/cartas.json`)
-
-El archivo `data/cartas.json` contiene todas las cartas del juego. Se edita con cualquier editor de texto (el Bloc de notas sirve). Se ve así:
-
-```json
-{
-  "categorias": ["Loco", "Picante", "Preguntas", "Retos", "Romantico"],
-  "cartas": [
-    { "id": 1, "categoria": "Preguntas", "texto": "¿Cuál fue el momento exacto en que supiste que te gustaba?" },
-    { "id": 2, "categoria": "Preguntas", "texto": "¿Qué fue lo primero que pensaste cuando me viste la primera vez?" }
-  ]
-}
+```text
+index.html              pantallas del juego
+css/styles.css          estilos
+js/
+  app.js                flujo del modo local
+  online.js             salas, chat y sincronización
+  cards.js              mazo, mezcla y fusión de cartas
+  timer.js              cronómetro
+  sound.js              efectos de audio
+api/                    endpoints de pareja, sesión, turnos y mensajes
+  _schema.sql           esquema de la base
+data/                   cartas base y cartas de usuario
+scripts/migrate.mjs     aplica el esquema en Neon
+tests/                  pruebas de lógica y API
+sw.js                   caché offline
 ```
 
-### Cambiar el texto de una carta
+## Puesta en marcha
 
-Encuentra la línea de la carta y cambia lo que está entre comillas en `"texto": "..."`. Guarda el archivo y recarga la página.
+### Requisitos
 
-### Agregar una carta nueva
+- Un navegador moderno para el modo local.
+- Node.js para ejecutar los tests y las migraciones.
+- Una base Neon solo para el modo online.
 
-1. Busca la última carta de la lista (la línea que termina antes del `]`).
-2. Cópiala entera, pégala debajo y cámbiala:
-   - El `"id"` debe ser el número siguiente al último.
-   - La `"categoria"` debe ser una de las categorías existentes (por ejemplo `"Preguntas"`).
-   - El `"texto"` es la pregunta o reto nuevo.
-   - **Importante:** la última carta de la lista tiene que ir seguida de `]` sin coma, y las demás deben terminar en coma. Copiando una línea completa y cambiándole el texto, el formato queda bien.
+### Instalación
 
-### Agregar una categoría nueva
+El modo local no necesita instalación: alcanza con servir la carpeta con un servidor
+estático, por ejemplo `python3 -m http.server 8000`, y abrir `index.html`.
 
-1. En la lista `"categorias": [...]` agregá el nombre nuevo, por ejemplo `"Aventura"`:
-   ```json
-   "categorias": ["Loco", "Picante", "Preguntas", "Retos", "Romantico", "Aventura"]
-   ```
-2. Cuando crees cartas de esa categoría, poné `"categoria": "Aventura"` en sus líneas.
+Para tests y modo online:
 
-> El archivo `data/cartas-usuario.json` tiene el mismo formato, pero normalmente está vacío: ahí se guardan las cartas exportadas desde la aplicación (ver más abajo). No es necesario tocarlo a mano.
+```bash
+npm install
+npm test
+DATABASE_URL="postgresql://..." node scripts/migrate.mjs
+```
 
----
+El modo online toma la cadena de conexión de `DATABASE_URL`; sin esa variable, el juego
+local sigue funcionando pero las salas no pueden conectarse.
 
-## Tus propias cartas desde la aplicación
+## Scripts
 
-En la pantalla de inicio toca **Mis cartas**:
+| Comando | Descripción |
+| --- | --- |
+| `npm test` | Ejecuta los tests con el runner nativo de Node |
 
-- **Crear:** elegí la categoría, escribí el texto y tocá **Guardar carta**.
-- **Editar o borrar:** cada carta tiene botones para editarla (✏️) o borrarla (🗑).
-- **Exportar:** el botón **Exportar JSON** descarga un archivo `cartas-usuario.json` con tus cartas. Guardalo como respaldo o para pasarlo a otro teléfono.
-- **Importar:** el botón **Importar JSON** carga un archivo de cartas que hayas exportado antes.
+## Despliegue
 
-Tus cartas se suman automáticamente a las partidas y quedan guardadas en ese navegador.
+Se publica en Vercel: los archivos estáticos se sirven directamente y la carpeta `api/`
+se expone como Vercel Functions. Hay que definir `DATABASE_URL` en el proyecto y aplicar
+el esquema con `scripts/migrate.mjs` antes de usar el modo online.
 
----
+## Estado del proyecto
 
-## Cómo instalar la aplicación
+Juego completo y usable. El modo local funciona sin backend; el modo online está
+implementado sobre Neon y requiere configurar la base y las funciones.
 
-Después de subirla a internet (o mientras la probás en `localhost`), se puede instalar como una aplicación:
+## Licencia
 
-### En Android (Chrome)
+Sin licencia definida.
 
-1. Abrí la página en Chrome.
-2. Tocá el menú de tres puntos (⋮).
-3. Tocá **"Instalar aplicación"** (o **"Agregar a pantalla principal"**).
-4. Confirmá: la app aparece con su ícono en el inicio del teléfono.
+## Autor
 
-### En iPhone (Safari)
-
-1. Abrí la página en Safari.
-2. Tocá el botón **Compartir** (el recuadro con la flecha hacia arriba).
-3. Tocá **"Añadir a pantalla de inicio"**.
-4. Tocá **"Añadir"**: la app queda instalada en el inicio.
-
----
-
-## Modo sin conexión (offline)
-
-La primera vez que se abre la página, la aplicación se guarda automáticamente en el dispositivo (esto lo hace el *service worker*). Después de esa primera carga, **funciona completa sin internet**: se puede abrir, jugar y hasta instalar sin conexión.
-
----
-
-## Sonido
-
-Los efectos de sonido se activan con el primer toque. Para silenciar o reactivar, tocá el botón 🔊/🔇 que aparece en la pantalla de inicio y durante la partida. La preferencia se recuerda entre partidas.
+Marcos Zingaretti — https://github.com/marcoszinga94
